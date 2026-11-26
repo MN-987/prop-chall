@@ -1,0 +1,68 @@
+{
+  "name": "Date: \"after the weekend\" (James)",
+  "covers": [
+    "Extra: Dates and timezone"
+  ],
+  "input": "Can you call me after the weekend? I'm still interested in a 1-bed in JLT or the Marina, up to 1.5M.",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "dueAt undefined is on Monday 2026-11-30, the first working day after the UAE weekend (message sent 2026-11-24)"
+    },
+    {
+      "ok": true,
+      "text": "every recommended listing exists, is the agency's, available and fits"
+    }
+  ],
+  "durationMs": 77,
+  "runs": [
+    {
+      "id": "2aecc2ac-4116-4870-b423-e460936e98cc",
+      "leadId": "ac364939-7391-5caa-90c7-6aefc6ee7908",
+      "messageId": "87cb28d2-3a64-58b2-96f5-d6358c5bf5db",
+      "messageIds": [
+        "87cb28d2-3a64-58b2-96f5-d6358c5bf5db"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.876Z",
+      "finishedAt": "2026-11-26T13:56:46.897Z"
+    }
+  ],
+  "modelCalls": []
+}

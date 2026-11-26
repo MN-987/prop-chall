@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { api, ApiError, AssistantRun, LeadDetail, PriceCheck, ProposedAction, Recommendation } from '@/lib/api';
+import { api, ApiError, AssistantRun, LeadDetail, PriceCheck, ProposedAction, Recommendation, ToolPlannerName } from '@/lib/api';
 import { formatAedShort, formatBedrooms, formatBudgetShort, formatDateTime, formatVerdict } from '@/lib/format';
 import { buildSteps, Spinner, StepList } from './AssistantSteps';
 
@@ -47,6 +47,22 @@ export function AssistantPanel({ lead, token, timeZone, onChanged, onUnauthorize
   const [error, setError] = useState<string | null>(null);
   const [busyActionId, setBusyActionId] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<Record<string, string[]>>({});
+  // Who chooses the tools; remembered per browser (a convenience: the run itself records what was used).
+  const [planner, setPlanner] = useState<ToolPlannerName>(() => {
+    try {
+      return window.localStorage.getItem(PLANNER_KEY) === 'jev' ? 'jev' : 'claude';
+    } catch {
+      return 'claude';
+    }
+  });
+  function choosePlanner(next: ToolPlannerName) {
+    setPlanner(next);
+    try {
+      window.localStorage.setItem(PLANNER_KEY, next);
+    } catch {
+      // Storage can be unavailable (private mode): the choice then lasts for this page only.
+    }
+  }
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -129,7 +145,7 @@ export function AssistantPanel({ lead, token, timeZone, onChanged, onUnauthorize
     setWarnings({});
     try {
       // 202 with a running run (then polled), or 201 with a finished one.
-      setRun(await api.startRun(token, lead.id));
+      setRun(await api.startRun(token, lead.id, planner));
     } catch (err) {
       if (isUnauthorized(err)) return;
       setError(runErrorMessage(err));
@@ -189,6 +205,18 @@ export function AssistantPanel({ lead, token, timeZone, onChanged, onUnauthorize
           {run ? 'Analyze again' : 'Analyze latest message'}
         </button>
       </div>
+      <label className="mt-2 flex items-center justify-end gap-2 text-xs text-gray-500">
+        Tools chosen by
+        <select
+          value={planner}
+          onChange={(event) => choosePlanner(event.target.value as ToolPlannerName)}
+          disabled={running}
+          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900"
+        >
+          <option value="claude">Claude</option>
+          <option value="jev">Jev (TypeSafe)</option>
+        </select>
+      </label>
 
       <div className="mt-3 space-y-3">
         {error && (
@@ -533,13 +561,16 @@ function ActionCard({
   );
 }
 
+const PLANNER_KEY = 'assistant.toolPlanner';
+
 function formatCost(usd: number): string {
   return `USD ${usd < 0.01 ? usd.toFixed(3) : usd.toFixed(2)}`;
 }
 
 function HowItDecided({ run }: { run: AssistantRun }) {
   const steps = buildSteps(run.trace, 'done', run.status === 'completed');
-  const usage = [run.model, run.costUsd !== undefined ? formatCost(run.costUsd) : null].filter(Boolean).join(', ');
+  const plannerLabel = run.toolPlanner?.name === 'jev' ? 'tools chosen by Jev' : run.toolPlanner ? 'tools chosen by Claude' : null;
+  const usage = [run.model, plannerLabel, run.costUsd !== undefined ? formatCost(run.costUsd) : null].filter(Boolean).join(', ');
   return (
     <details className="group rounded-xl bg-white ring-1 ring-gray-200">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3.5 py-3 text-sm font-semibold text-gray-900 [&::-webkit-details-marker]:hidden">

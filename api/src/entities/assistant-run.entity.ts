@@ -17,8 +17,13 @@ export type AssistantRunStatus = (typeof ASSISTANT_RUN_STATUSES)[number];
  */
 @Entity({ tableName: 'assistant_runs' })
 @Index({ properties: ['lead', 'createdAt'] })
+// Declared here (it is created in Migration20261126111145) so a generated migration never drops it.
+@Index({
+  name: 'assistant_runs_one_running_per_lead',
+  expression: `create unique index "assistant_runs_one_running_per_lead" on "assistant_runs" ("lead_id") where "status" = 'running'`,
+})
 export class AssistantRun {
-  [OptionalProps]?: 'createdAt' | 'error' | 'finishedAt' | 'summary' | 'priceChecks' | 'trace' | 'usage' | 'costUsd';
+  [OptionalProps]?: 'createdAt' | 'error' | 'finishedAt' | 'summary' | 'priceChecks' | 'trace' | 'usage' | 'costUsd' | 'planner';
 
   @PrimaryKey({ type: 'uuid' })
   id: string = randomUUID();
@@ -73,6 +78,10 @@ export class AssistantRun {
 
   @Property({ type: 'string' })
   model!: string;
+
+  /** Which strategy chose the tools ("claude" or "jev"), what it decided, and what it cost. */
+  @Property({ type: 'json', nullable: true })
+  planner?: Record<string, unknown> | null;
 
   @Property({ type: 'datetime', columnType: 'timestamptz' })
   createdAt: Date = new Date();

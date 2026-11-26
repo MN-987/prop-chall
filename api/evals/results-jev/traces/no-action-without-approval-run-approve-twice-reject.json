@@ -1,0 +1,68 @@
+{
+  "name": "No action without approval: run, approve twice, reject",
+  "covers": [
+    "8. No action without approval"
+  ],
+  "input": "Hey, I'm looking for a 2-bedroom apartment in Dubai Marina, budget around 2M AED. Prefer something with a good rental yield. Can you follow up with me tomorrow? (then approve twice and reject; and reject Lina's follow-up)",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": true,
+      "text": "tasks, lead, messages and listings after the run is {\"lead\":{\"name\":\"Karim Mansour\",\"status\":\"new\",\"notes\":null,\"agent\":\"dde75509-2390-59ac-848c-0601614a030f\"},\"tasks\":[],\"messages\":1,\"properties\":[\"MBR-1001:available:2050000\",\"MBR-1002:available:1890000\",\"MBR-1003:available:2200000\",\"MBR-1004:available:2750000\",\"MBR-1005:sold:1950000\",\"MBR-1006:reserved:1990000\",\"MBR-1007:available:1650000\",\"MBR-1008:available:2400000\",\"MBR-1009:available:1450000\",\"MBR-1010:available:780000\",\"MBR-1011:available:3600000\",\"MBR-1012:available:12500000\",\"MBR-1013:available:1550000\",\"MBR-1014:available:2600000\",\"MBR-1015:available:3800000\",\"MBR-1016:available:1850000\",\"MBR-1017:available:1050000\",\"MBR-1018:available:3900000\",\"MBR-1019:available:6200000\",\"MBR-1020:available:380000\",\"MBR-1021:available:3200000\",\"MBR-1022:available:2099000\",\"MBR-1023:available:21500\",\"MBR-1024:available:2050000\"]}"
+    },
+    {
+      "ok": false,
+      "text": "follow-up status before approval: expected \"pending_approval\", got undefined"
+    }
+  ],
+  "durationMs": 0,
+  "runs": [
+    {
+      "id": "f73d2a85-6e1f-4130-a38d-45b1d14d4afc",
+      "leadId": "310661c8-6de3-5b3f-80c8-ca4ef71e55b1",
+      "messageId": "536370e0-95b4-539e-943b-4a67509c0bea",
+      "messageIds": [
+        "536370e0-95b4-539e-943b-4a67509c0bea"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.662Z",
+      "finishedAt": "2026-11-26T13:56:46.684Z"
+    }
+  ],
+  "modelCalls": []
+}

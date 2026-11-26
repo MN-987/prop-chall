@@ -1,0 +1,80 @@
+{
+  "name": "Requirements: Fatima writes in Arabic",
+  "covers": [
+    "1. Requirements"
+  ],
+  "input": "مرحبا، أبحث عن شقة بغرفتين في دبي مارينا بميزانية حوالي ٢ مليون درهم. هل يمكنك التواصل معي غداً؟",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "locations: expected [\"Dubai Marina\"], got []"
+    },
+    {
+      "ok": false,
+      "text": "bedrooms: expected 2, got null"
+    },
+    {
+      "ok": false,
+      "text": "budget max null is between 2.0M and 2.2M"
+    },
+    {
+      "ok": false,
+      "text": "propertyType: expected \"apartment\", got null"
+    },
+    {
+      "ok": true,
+      "text": "the summary for Sara is in English"
+    }
+  ],
+  "durationMs": 41,
+  "runs": [
+    {
+      "id": "3864baf9-163a-4094-96a8-ab799c17dc28",
+      "leadId": "f7e72c18-9aeb-5f8a-a5a8-c7a3a7508ed1",
+      "messageId": "95ec5924-b0f1-56c1-96da-5424b5b0a2f0",
+      "messageIds": [
+        "95ec5924-b0f1-56c1-96da-5424b5b0a2f0"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.749Z",
+      "finishedAt": "2026-11-26T13:56:46.762Z"
+    }
+  ],
+  "modelCalls": []
+}

@@ -1,0 +1,172 @@
+{
+  "name": "Tool choice: named code, search first, nothing to search",
+  "covers": [
+    "7. Tool choice"
+  ],
+  "input": "Ben: \"I saw MBR-1016 in Business Bay. Is 1.85M a fair price?\" · Karim: a normal search · Hassan: \"Hi\"",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "Ben: get_listing was called with MBR-1016"
+    },
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "Karim: search_listings was called (tools: none)"
+    },
+    {
+      "ok": true,
+      "text": "Karim: the search came before any detail lookup"
+    },
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": true,
+      "text": "Hassan (\"Hi\"): search_listings calls is 0"
+    },
+    {
+      "ok": true,
+      "text": "Hassan: recommendations is []"
+    }
+  ],
+  "durationMs": 37,
+  "runs": [
+    {
+      "id": "59f0142b-4500-4647-93b3-c21e78cb8128",
+      "leadId": "a89f33ec-8a42-530a-9f3c-26efae4b5838",
+      "messageId": "f4f8b7cf-16c7-5dcd-8b54-eb2fa61b3a66",
+      "messageIds": [
+        "f4f8b7cf-16c7-5dcd-8b54-eb2fa61b3a66"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:47.267Z",
+      "finishedAt": "2026-11-26T13:56:47.274Z"
+    },
+    {
+      "id": "f73d2a85-6e1f-4130-a38d-45b1d14d4afc",
+      "leadId": "310661c8-6de3-5b3f-80c8-ca4ef71e55b1",
+      "messageId": "536370e0-95b4-539e-943b-4a67509c0bea",
+      "messageIds": [
+        "536370e0-95b4-539e-943b-4a67509c0bea"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.662Z",
+      "finishedAt": "2026-11-26T13:56:46.684Z"
+    },
+    {
+      "id": "aff47fbf-0ffb-491e-925a-b8bd5fcd4d87",
+      "leadId": "475073df-8f3e-5574-be40-e659901a2680",
+      "messageId": "7fc205e1-7341-56f3-a1c0-a64748f35ff5",
+      "messageIds": [
+        "7fc205e1-7341-56f3-a1c0-a64748f35ff5"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:47.286Z",
+      "finishedAt": "2026-11-26T13:56:47.293Z"
+    }
+  ],
+  "modelCalls": []
+}

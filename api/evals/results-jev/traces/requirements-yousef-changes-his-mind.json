@@ -1,0 +1,76 @@
+{
+  "name": "Requirements: Yousef changes his mind",
+  "covers": [
+    "1. Requirements"
+  ],
+  "input": "Earlier: 2-bed in Dubai Marina around 2M. Latest: \"Change of plan... we need 3 bedrooms now. Budget up to 4M. Same area.\"",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "locations (\"same area\"): expected [\"Dubai Marina\"], got []"
+    },
+    {
+      "ok": false,
+      "text": "bedrooms (the later message wins): expected 3, got null"
+    },
+    {
+      "ok": false,
+      "text": "budget max (\"up to 4M\"): expected 4000000, got null"
+    },
+    {
+      "ok": true,
+      "text": "every recommended listing exists, is the agency's, available and fits"
+    }
+  ],
+  "durationMs": 29,
+  "runs": [
+    {
+      "id": "1a45d43f-745f-40ba-83af-d6d25c66b3d5",
+      "leadId": "651d2943-9f72-5cec-979f-58bf69380af8",
+      "messageId": "66ecee80-b236-5bcc-8536-e00e18aaaca6",
+      "messageIds": [
+        "66ecee80-b236-5bcc-8536-e00e18aaaca6"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.719Z",
+      "finishedAt": "2026-11-26T13:56:46.729Z"
+    }
+  ],
+  "modelCalls": []
+}

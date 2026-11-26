@@ -1,0 +1,84 @@
+{
+  "name": "Agency isolation: Omar (Desert Key) and Sara (Marina Bay)",
+  "covers": [
+    "Extra: Agency isolation"
+  ],
+  "input": "Nadia (Desert Key): \"Hi, looking for a 2-bedroom in Dubai Marina, budget 2M. Please follow up tomorrow.\"",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": true,
+      "text": "every recommended listing exists, is the agency's, available and fits"
+    },
+    {
+      "ok": true,
+      "text": "no Marina Bay listing appears anywhere in Omar's trace"
+    },
+    {
+      "ok": true,
+      "text": "Sara reads Omar's run is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara reads Omar's run under her own lead is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara lists Omar's lead's runs is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara starts a run on Omar's lead is 404"
+    }
+  ],
+  "durationMs": 38,
+  "runs": [
+    {
+      "id": "456c7f39-7456-4870-8410-1764f5560a99",
+      "leadId": "78f4733d-3f7d-523d-9e80-afde5280f5db",
+      "messageId": "4d644d3e-77ce-501f-8367-ceb6acdfee87",
+      "messageIds": [
+        "4d644d3e-77ce-501f-8367-ceb6acdfee87"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:47.307Z",
+      "finishedAt": "2026-11-26T13:56:47.316Z"
+    }
+  ],
+  "modelCalls": []
+}

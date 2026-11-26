@@ -1,0 +1,68 @@
+{
+  "name": "Date: \"tomorrow\" (Karim)",
+  "covers": [
+    "Extra: Dates and timezone"
+  ],
+  "input": "Hey, I'm looking for a 2-bedroom apartment in Dubai Marina, budget around 2M AED. Prefer something with a good rental yield. Can you follow up with me tomorrow?",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "dueAt undefined is on 2026-11-27 (the day after the message, in Dubai) with offset +04:00"
+    },
+    {
+      "ok": false,
+      "text": "needsClarification: expected null, got undefined"
+    }
+  ],
+  "durationMs": 3,
+  "runs": [
+    {
+      "id": "f73d2a85-6e1f-4130-a38d-45b1d14d4afc",
+      "leadId": "310661c8-6de3-5b3f-80c8-ca4ef71e55b1",
+      "messageId": "536370e0-95b4-539e-943b-4a67509c0bea",
+      "messageIds": [
+        "536370e0-95b4-539e-943b-4a67509c0bea"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.662Z",
+      "finishedAt": "2026-11-26T13:56:46.684Z"
+    }
+  ],
+  "modelCalls": []
+}

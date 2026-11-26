@@ -1,0 +1,68 @@
+{
+  "name": "No fit: Priya wants to rent",
+  "covers": [
+    "3. No suitable property"
+  ],
+  "input": "Hello, I'm looking to rent a 2-bed in Business Bay for about 120k a year, moving in next month.",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": false,
+      "text": "intent: expected \"rent\", got \"unknown\""
+    },
+    {
+      "ok": true,
+      "text": "recommendations (all listings are for sale) is []"
+    }
+  ],
+  "durationMs": 26,
+  "runs": [
+    {
+      "id": "be5859e8-54a3-4b43-9b5b-96d28fd2400c",
+      "leadId": "4e9649a2-b0e3-5342-a303-87e4b5eba73f",
+      "messageId": "528b3bb0-1b9c-5a38-8d4a-ba3cc7c3968d",
+      "messageIds": [
+        "528b3bb0-1b9c-5a38-8d4a-ba3cc7c3968d"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.845Z",
+      "finishedAt": "2026-11-26T13:56:46.854Z"
+    }
+  ],
+  "modelCalls": []
+}

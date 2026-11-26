@@ -1,0 +1,72 @@
+{
+  "name": "No fit: Lina wants a 5-bed villa under 900k",
+  "covers": [
+    "3. No suitable property"
+  ],
+  "input": "Hi, I want a 5-bedroom villa in Dubai Marina for under 900k AED. Ready to buy this week.",
+  "status": "fail",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
+    },
+    {
+      "ok": true,
+      "text": "recommendations is []"
+    },
+    {
+      "ok": false,
+      "text": "bedrooms: expected 5, got null"
+    },
+    {
+      "ok": false,
+      "text": "propertyType: expected \"villa\", got null"
+    }
+  ],
+  "durationMs": 53,
+  "runs": [
+    {
+      "id": "6de454cb-f815-4494-8c41-3ddaff41cb65",
+      "leadId": "0bab04e6-d42d-521e-aa18-d256456a6b69",
+      "messageId": "6fd52efc-4a8a-5dc8-b6d5-fa1f85a045db",
+      "messageIds": [
+        "6fd52efc-4a8a-5dc8-b6d5-fa1f85a045db"
+      ],
+      "trigger": "manual",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
+      "requirements": {
+        "locations": [],
+        "bedrooms": null,
+        "budgetAed": {
+          "min": null,
+          "max": null
+        },
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
+      },
+      "recommendations": [],
+      "summary": "",
+      "priceChecks": [],
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev"
+      },
+      "createdAt": "2026-11-26T13:56:46.793Z",
+      "finishedAt": "2026-11-26T13:56:46.813Z"
+    }
+  ],
+  "modelCalls": []
+}

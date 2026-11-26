@@ -1,0 +1,13 @@
+{
+  "name": "Part 9: approving after a listing sold warns with its code",
+  "covers": [
+    "Part 9: Re-check on approve"
+  ],
+  "input": "Hi, I'm looking for a 2-bed apartment in Dubai Marina, up to 2.2M. Call me tomorrow. (then the first recommended listing is marked sold before Sara approves)",
+  "status": "skipped",
+  "skipReason": "Part 9 is not built yet.",
+  "checks": [],
+  "durationMs": 0,
+  "runs": [],
+  "modelCalls": []
+}
