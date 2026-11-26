@@ -1,0 +1,137 @@
+{
+  "name": "Date: unclear (\"sometime soon\")",
+  "covers": [
+    "4. Unclear follow-up date"
+  ],
+  "input": "Hi, I'm after a 1-bed apartment in Jumeirah Lake Towers, budget up to 1.3M. Give me a call sometime soon.",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "dueAt is null"
+    },
+    {
+      "ok": true,
+      "text": "needsClarification says why: \"Lead asked for a call 'sometime soon' without a specific day or time.\""
+    }
+  ],
+  "durationMs": 5250,
+  "runs": [
+    {
+      "id": "b9637f46-e6a9-4f9c-87ea-8a6adc7f6cda",
+      "leadId": "4441f86e-3e1a-4f10-9ae3-89c601930986",
+      "messageId": "8b5b545a-8bfe-4071-91b4-174e2f2c6ca6",
+      "messageIds": [
+        "8b5b545a-8bfe-4071-91b4-174e2f2c6ca6"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 1,
+        "budgetAed": {
+          "max": 1300000,
+          "min": null
+        },
+        "locations": [
+          "Jumeirah Lake Towers"
+        ],
+        "preferences": [],
+        "propertyType": "apartment"
+      },
+      "recommendations": [],
+      "summary": "The lead wants to buy a 1-bed apartment in Jumeirah Lake Towers with a budget of up to AED 1.3M. The search for 1-bed apartments in Jumeirah Lake Towers returned no listings, so there is nothing to recommend right now. The lead asked for a call 'sometime soon' without giving a specific time.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "3061a8db-1280-4523-8ab9-22c2d74c0aa2",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Call lead about 1-bed JLT apartment options",
+            "notes": "Wants a 1-bed apartment in Jumeirah Lake Towers, up to AED 1.3M. No current listings match. Discuss whether nearby areas or other options would work.",
+            "dueAt": null
+          },
+          "needsClarification": "Lead asked for a call 'sometime soon' without a specific day or time.",
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Jumeirah Lake Towers",
+            "type": "apartment",
+            "maxBedrooms": 1,
+            "minBedrooms": 1
+          },
+          "output": {
+            "listings": [],
+            "returned": 0,
+            "totalMatching": 0
+          },
+          "durationMs": 6
+        }
+      ],
+      "costUsd": 0.0216,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev",
+        "costUsd": 0.000054,
+        "decisions": {
+          "type": {
+            "villa": 0,
+            "apartment": 1,
+            "penthouse": 0,
+            "townhouse": 0,
+            "not_stated": 0
+          },
+          "area_0": 0.01,
+          "area_1": 0.01,
+          "area_2": 0.01,
+          "area_3": 0.01,
+          "area_4": 0.04,
+          "area_5": 0.01,
+          "area_6": 0.02,
+          "area_7": 0.99,
+          "area_8": 0.01,
+          "area_9": 0.02,
+          "looking": 0.99,
+          "bedrooms_0": 0.12,
+          "bedrooms_1": 0.98,
+          "bedrooms_2": 0.1,
+          "bedrooms_3": 0.06,
+          "bedrooms_4": 0.05,
+          "bedrooms_5": 0.05,
+          "bedrooms_stated": 0.97
+        }
+      },
+      "createdAt": "2026-11-26T12:42:22.077Z",
+      "finishedAt": "2026-11-26T12:42:27.246Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "Date: unclear (\"sometime soon\")",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 3464,
+      "outputTokens": 380,
+      "costUsd": 0.0215,
+      "durationMs": 4376
+    }
+  ]
+}

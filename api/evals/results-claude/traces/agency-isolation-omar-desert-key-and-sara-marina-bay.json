@@ -1,0 +1,174 @@
+{
+  "name": "Agency isolation: Omar (Desert Key) and Sara (Marina Bay)",
+  "covers": [
+    "Extra: Agency isolation"
+  ],
+  "input": "Nadia (Desert Key): \"Hi, looking for a 2-bedroom in Dubai Marina, budget 2M. Please follow up tomorrow.\"",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "every recommended listing exists, is the agency's, available and fits"
+    },
+    {
+      "ok": true,
+      "text": "no Marina Bay listing appears anywhere in Omar's trace"
+    },
+    {
+      "ok": true,
+      "text": "Sara reads Omar's run is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara reads Omar's run under her own lead is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara lists Omar's lead's runs is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara starts a run on Omar's lead is 404"
+    },
+    {
+      "ok": true,
+      "text": "Sara approves Omar's action is 404"
+    }
+  ],
+  "durationMs": 8995,
+  "runs": [
+    {
+      "id": "6d715f5d-a3c7-41ac-b396-21d4173b0d78",
+      "leadId": "78f4733d-3f7d-523d-9e80-afde5280f5db",
+      "messageId": "4d644d3e-77ce-501f-8367-ceb6acdfee87",
+      "messageIds": [
+        "4d644d3e-77ce-501f-8367-ceb6acdfee87"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 2,
+        "budgetAed": {
+          "max": 2000000,
+          "min": null
+        },
+        "locations": [
+          "Dubai Marina"
+        ],
+        "preferences": [],
+        "propertyType": null
+      },
+      "recommendations": [
+        {
+          "area": "Dubai Marina",
+          "title": "2BR in Marina Quays East",
+          "reason": "DKP-2001 is a 2-bed, 2-bath apartment in Marina Quays East, Dubai Marina. It costs AED 1,980,000, which is within the AED 2M budget. It is 1,280 sqft (AED 1,547/sqft), has an estimated annual rent of AED 150,000 (7.58% gross yield) and a service charge of AED 18/sqft. It is available and has no data warnings.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 1980000,
+          "reference": "DKP-2001",
+          "propertyId": "c59d90ac-dbc5-5216-a9df-7799babf91b3",
+          "annualRentAed": 150000,
+          "grossYieldPct": 7.58
+        }
+      ],
+      "summary": "Nadia Rahman wants to buy a 2-bedroom in Dubai Marina with a budget of AED 2M. She gave no property type or other preferences. One listing fits: DKP-2001, a 1,280 sqft 2-bed apartment in Marina Quays East for AED 1,980,000, with a 7.58% gross yield and no data warnings. She asked to be followed up tomorrow.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "139d456a-8378-4010-9462-22c3d93eef63",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Call Nadia Rahman about 2-bed Dubai Marina options",
+            "notes": "Budget AED 2M, 2-bed in Dubai Marina. Present DKP-2001 (Marina Quays East, AED 1.98M, 1,280 sqft, 7.58% gross yield). Confirm property type and any other preferences.",
+            "dueAt": "2026-11-27T10:00:00+04:00"
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Dubai Marina",
+            "maxBedrooms": 2,
+            "maxPriceAed": 2000000,
+            "minBedrooms": 2
+          },
+          "output": {
+            "listings": [
+              {
+                "id": "c59d90ac-dbc5-5216-a9df-7799babf91b3",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "2BR in Marina Quays East",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Marina Quays East",
+                "listedAt": "2026-11-22T12:38:25.228Z",
+                "priceAed": 1980000,
+                "sizeSqft": 1280,
+                "warnings": [],
+                "bathrooms": 2,
+                "reference": "DKP-2001",
+                "annualRentAed": 150000,
+                "grossYieldPct": 7.58,
+                "recommendable": true,
+                "priceAedPerSqft": 1547,
+                "serviceChargeAedPerSqft": 18
+              }
+            ],
+            "returned": 1,
+            "totalMatching": 1
+          },
+          "durationMs": 13
+        }
+      ],
+      "costUsd": 0.0504,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "claude",
+        "costUsd": 0
+      },
+      "createdAt": "2026-11-26T12:40:59.823Z",
+      "finishedAt": "2026-11-26T12:41:08.667Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "Agency isolation: Omar (Desert Key) and Sara (Marina Bay)",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "called search_listings",
+      "inputTokens": 4170,
+      "outputTokens": 185,
+      "costUsd": 0.0204,
+      "durationMs": 3143
+    },
+    {
+      "caseName": "Agency isolation: Omar (Desert Key) and Sara (Marina Bay)",
+      "step": 2,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4606,
+      "outputTokens": 579,
+      "costUsd": 0.03,
+      "durationMs": 5594
+    }
+  ]
+}

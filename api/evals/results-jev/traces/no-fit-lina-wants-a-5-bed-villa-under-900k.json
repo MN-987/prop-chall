@@ -1,0 +1,143 @@
+{
+  "name": "No fit: Lina wants a 5-bed villa under 900k",
+  "covers": [
+    "3. No suitable property"
+  ],
+  "input": "Hi, I want a 5-bedroom villa in Dubai Marina for under 900k AED. Ready to buy this week.",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "recommendations is []"
+    },
+    {
+      "ok": true,
+      "text": "bedrooms is 5"
+    },
+    {
+      "ok": true,
+      "text": "propertyType is \"villa\""
+    }
+  ],
+  "durationMs": 5780,
+  "runs": [
+    {
+      "id": "ffef6bf8-fdd1-4465-9910-52399bda8649",
+      "leadId": "0bab04e6-d42d-521e-aa18-d256456a6b69",
+      "messageId": "6fd52efc-4a8a-5dc8-b6d5-fa1f85a045db",
+      "messageIds": [
+        "6fd52efc-4a8a-5dc8-b6d5-fa1f85a045db"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 5,
+        "budgetAed": {
+          "max": 900000,
+          "min": null
+        },
+        "locations": [
+          "Dubai Marina"
+        ],
+        "preferences": [
+          "ready to buy this week"
+        ],
+        "propertyType": "villa"
+      },
+      "recommendations": [],
+      "summary": "Lina Haddad wants to buy a 5-bedroom villa in Dubai Marina for under AED 900,000 and says she is ready to buy this week. The search for 5+ bedroom villas in Dubai Marina returned no listings, so nothing can be recommended. Her budget is also very low for a 5-bedroom villa in that area. The agent should check whether she can raise her budget or consider other areas, other property types, or fewer bedrooms.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "eb2ca01c-1103-46b3-968c-363e79d6dc2e",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Contact Lina Haddad about 5-bed villa in Dubai Marina (no matches)",
+            "notes": "No 5-bed villas in Dubai Marina in our listings. Her budget is under AED 900k and she is ready to buy this week. Ask whether she is flexible on area, type, bedrooms or budget.",
+            "dueAt": null
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Dubai Marina",
+            "type": "villa",
+            "maxBedrooms": 20,
+            "minBedrooms": 5
+          },
+          "output": {
+            "listings": [],
+            "returned": 0,
+            "totalMatching": 0
+          },
+          "durationMs": 5
+        }
+      ],
+      "costUsd": 0.0221,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "jev",
+        "costUsd": 0.000053,
+        "decisions": {
+          "type": {
+            "villa": 1,
+            "apartment": 0,
+            "penthouse": 0,
+            "townhouse": 0,
+            "not_stated": 0
+          },
+          "area_0": 0.01,
+          "area_1": 0.02,
+          "area_2": 0.02,
+          "area_3": 0.02,
+          "area_4": 0.99,
+          "area_5": 0.01,
+          "area_6": 0.04,
+          "area_7": 0.02,
+          "area_8": 0.01,
+          "area_9": 0.02,
+          "looking": 0.99,
+          "bedrooms_0": 0.04,
+          "bedrooms_1": 0.05,
+          "bedrooms_2": 0.06,
+          "bedrooms_3": 0.09,
+          "bedrooms_4": 0.16,
+          "bedrooms_5": 0.96,
+          "bedrooms_stated": 0.98
+        }
+      },
+      "createdAt": "2026-11-26T12:41:58.869Z",
+      "finishedAt": "2026-11-26T12:42:04.578Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "No fit: Lina wants a 5-bed villa under 900k",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 3445,
+      "outputTokens": 411,
+      "costUsd": 0.022,
+      "durationMs": 4934
+    }
+  ]
+}

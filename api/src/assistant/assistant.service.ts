@@ -9,6 +9,7 @@ import {
   OnApplicationBootstrap,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { TypeSafeClient } from '@typesafe-ai/sdk';
 import type { LanguageModel } from 'ai';
 import { AuthAgent } from '../auth/decorators';
 import { Agency, Agent, AssistantAction, AssistantRun, AssistantRunTrigger, Lead, Message, Task } from '../entities';
@@ -17,10 +18,21 @@ import { PropertiesService } from '../properties/properties.service';
 import { DEFAULT_MODEL, runAgent } from './agent';
 import { EMPTY_REQUIREMENTS, StartRunDto, toActionDto, toRunDto, toTaskDto } from './assistant.dto';
 import { resolveDueDate } from './due-date';
+import { ClaudeToolPlanner } from './planners/claude-tool-planner';
+import { JevClient, JevToolPlanner } from './planners/jev-tool-planner';
+import { TOOL_PLANNERS, ToolPlanner, ToolPlannerName } from './planners/tool-planner';
 import { loadAgencyAreas } from './tools';
 
 /** Nest injection token for the language model. Null means the real Anthropic model; tests pass a stand-in. */
 export const ASSISTANT_LANGUAGE_MODEL = Symbol('ASSISTANT_LANGUAGE_MODEL');
+/** Nest injection token for TypeSafe's client (the `jev` tool planner). Null means: build it from TYPESAFE_API_KEY. */
+export const TYPESAFE_CLIENT = Symbol('TYPESAFE_CLIENT');
+
+/** The default tool planner: TOOL_PLANNER in the environment if valid, else Claude. */
+export function defaultToolPlanner(): ToolPlannerName {
+  const configured = process.env.TOOL_PLANNER as ToolPlannerName | undefined;
+  return configured && (TOOL_PLANNERS as readonly string[]).includes(configured) ? configured : 'claude';
+}
 
 const MAX_RUNS_LISTED = 50;
 
@@ -41,7 +53,18 @@ export class AssistantService implements OnApplicationBootstrap {
     private readonly leads: LeadsService,
     private readonly properties: PropertiesService,
     @Inject(ASSISTANT_LANGUAGE_MODEL) private readonly model: LanguageModel | null,
+    @Inject(TYPESAFE_CLIENT) private readonly typesafe: JevClient | null,
   ) {}
+
+  /** The strategy for "who chooses the tools". A missing TypeSafe key fails the run with that reason. */
+  private plannerFor(name: ToolPlannerName): ToolPlanner {
+    if (name === 'claude') return new ClaudeToolPlanner();
+    if (this.typesafe) return new JevToolPlanner(this.typesafe);
+    if (!process.env.TYPESAFE_API_KEY) {
+      return { name: 'jev', prepare: async () => { throw new Error('TYPESAFE_API_KEY is not set in api/.env'); } };
+    }
+    return new JevToolPlanner(new TypeSafeClient());
+  }
 
   /**
    * At startup, a run still marked `running` was cut off by a restart or a crash: nothing will finish it, so it ends
@@ -64,12 +87,13 @@ export class AssistantService implements OnApplicationBootstrap {
     const lead = await this.leads.findLead(agent.agencyId, leadId);
     const message = await this.pickMessage(lead, dto.messageId);
     const me = await this.em.findOneOrFail(Agent, { id: agent.id, agency: agent.agencyId });
+    const planner = dto.planner ?? defaultToolPlanner();
     const run = await this.createRun({ lead, message, newMessages: [message], trigger: 'manual' });
     if (background) {
-      void this.completeRun(run.id, me.timezone).catch((error) => this.logger.error(`Run ${run.id} crashed`, error));
+      void this.completeRun(run.id, me.timezone, planner).catch((error) => this.logger.error(`Run ${run.id} crashed`, error));
       return this.runDto(run);
     }
-    await this.completeRun(run.id, me.timezone);
+    await this.completeRun(run.id, me.timezone, planner);
     return this.runDto(await this.em.findOneOrFail(AssistantRun, run.id, { refresh: true, populate: ['message'] }));
   }
 
@@ -175,7 +199,7 @@ export class AssistantService implements OnApplicationBootstrap {
    * Runs the agent for a `running` run and records the result, in its own entity manager so it can outlive the
    * request. A run that fails is saved as `failed`, never as "nothing found".
    */
-  private async completeRun(runId: string, timeZone: string): Promise<void> {
+  private async completeRun(runId: string, timeZone: string, plannerName: ToolPlannerName): Promise<void> {
     const em = this.em.fork();
     const run = await em.findOneOrFail(AssistantRun, runId, { populate: ['lead', 'agency', 'message'] });
     const { lead, message } = run;
@@ -192,6 +216,7 @@ export class AssistantService implements OnApplicationBootstrap {
         newMessageIds: run.messageIds,
         timeZone,
         model: this.model ?? undefined,
+        planner: this.plannerFor(plannerName),
         // Saved after every tool call, so GET shows the steps so far while the run works.
         onTrace: async (trace) => {
           await em.fork().nativeUpdate(AssistantRun, { id: runId }, { trace: trace as unknown as Array<Record<string, unknown>> });
@@ -206,6 +231,7 @@ export class AssistantService implements OnApplicationBootstrap {
       run.trace = result.trace as unknown as Array<Record<string, unknown>>;
       run.usage = (result.usage as unknown as Record<string, unknown>) ?? null;
       run.costUsd = result.costUsd.toFixed(4);
+      run.planner = (result.planner as unknown as Record<string, unknown>) ?? { name: plannerName };
       run.finishedAt = new Date();
       if (!result.ok) {
         run.status = 'failed';

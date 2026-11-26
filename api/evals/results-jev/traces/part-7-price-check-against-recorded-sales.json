@@ -1,0 +1,13 @@
+{
+  "name": "Part 7: price check against recorded sales",
+  "covers": [
+    "Part 7: Price check"
+  ],
+  "input": "Ben names MBR-1016 (AED 1,480/sqft; 6 Business Bay 2-bed sales in 365 days, median 1,450: fair). Karim's MBR-1001 (1,553/sqft; 9 trustworthy Marina 2-bed sales after dropping a typo price, a typo size and 2 duplicates, median 1,380: above_market).",
+  "status": "skipped",
+  "skipReason": "Part 7 is not built yet.",
+  "checks": [],
+  "durationMs": 0,
+  "runs": [],
+  "modelCalls": []
+}
