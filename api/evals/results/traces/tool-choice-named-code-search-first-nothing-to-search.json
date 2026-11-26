@@ -1,0 +1,546 @@
+{
+  "name": "Tool choice: named code, search first, nothing to search",
+  "covers": [
+    "7. Tool choice"
+  ],
+  "input": "Ben: \"I saw MBR-1016 in Business Bay. Is 1.85M a fair price?\" · Karim: a normal search · Hassan: \"Hi\"",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "Ben: get_listing was called with MBR-1016"
+    },
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "Karim: search_listings was called (tools: search_listings)"
+    },
+    {
+      "ok": true,
+      "text": "Karim: the search came before any detail lookup"
+    },
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "Hassan (\"Hi\"): search_listings calls is 0"
+    },
+    {
+      "ok": true,
+      "text": "Hassan: recommendations is []"
+    }
+  ],
+  "durationMs": 13177,
+  "runs": [
+    {
+      "id": "dee0736d-874f-452a-b252-ad351991210d",
+      "leadId": "a89f33ec-8a42-530a-9f3c-26efae4b5838",
+      "messageId": "f4f8b7cf-16c7-5dcd-8b54-eb2fa61b3a66",
+      "messageIds": [
+        "f4f8b7cf-16c7-5dcd-8b54-eb2fa61b3a66"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": null,
+        "budgetAed": {
+          "max": null,
+          "min": null
+        },
+        "locations": [
+          "Business Bay"
+        ],
+        "preferences": [],
+        "propertyType": null
+      },
+      "recommendations": [
+        {
+          "area": "Business Bay",
+          "title": "Executive Towers 2BR",
+          "reason": "This is MBR-1016, the listing the lead named (Executive Towers 2BR, Business Bay). It is available at AED 1,850,000 for 1,250 sqft, which is AED 1,480/sqft. The estimated annual rent is AED 125,000, a 6.76% gross yield. Service charge is AED 18.5/sqft. The listing has no data warnings.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 1850000,
+          "reference": "MBR-1016",
+          "propertyId": "8adb5b76-662d-5dba-9025-48cabe58b131",
+          "annualRentAed": 125000,
+          "grossYieldPct": 6.76
+        }
+      ],
+      "summary": "Ben is thinking of making an offer on MBR-1016, an available 2-bed, 2-bath apartment in Executive Towers, Business Bay, and asks whether AED 1.85M is a fair price. The listing is 1,250 sqft at AED 1,480/sqft, with a 6.76% gross yield on an estimated AED 125,000 annual rent and a service charge of AED 18.5/sqft. It has no data warnings. MBR-1016 is the agency's only Business Bay listing, so there are no in-house comparables. The agent should use outside market data on Business Bay prices per sqft before advising on whether the price is fair or on an offer. Ben gave no budget, bedroom count or callback time.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "8e5e70bc-2110-47b2-b685-b3270d43d7da",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Reply to Ben Carter about price and an offer on MBR-1016 (Executive Towers 2BR)",
+            "notes": "Ben asks whether AED 1.85M is a fair price for MBR-1016 and is thinking of making an offer. Key figures: AED 1,480/sqft, 1,250 sqft, 6.76% gross yield, AED 18.5/sqft service charge. The agency has no other Business Bay listings to compare against, so bring outside market comparables. Ask him what offer he has in mind and how he would pay (cash or mortgage).",
+            "dueAt": null
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "get_listing",
+          "input": {
+            "listing": "MBR-1016"
+          },
+          "output": {
+            "id": "8adb5b76-662d-5dba-9025-48cabe58b131",
+            "area": "Business Bay",
+            "type": "apartment",
+            "found": true,
+            "title": "Executive Towers 2BR",
+            "status": "available",
+            "bedrooms": 2,
+            "building": "Executive Towers",
+            "listedAt": "2026-11-18T12:26:43.167Z",
+            "priceAed": 1850000,
+            "sizeSqft": 1250,
+            "warnings": [],
+            "bathrooms": 2,
+            "reference": "MBR-1016",
+            "description": "<listing_description>Connected to Bay Avenue mall. Canal glimpses.</listing_description>",
+            "annualRentAed": 125000,
+            "grossYieldPct": 6.76,
+            "recommendable": true,
+            "priceAedPerSqft": 1480,
+            "serviceChargeAedPerSqft": 18.5
+          },
+          "durationMs": 11
+        },
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Business Bay"
+          },
+          "output": {
+            "listings": [
+              {
+                "id": "8adb5b76-662d-5dba-9025-48cabe58b131",
+                "area": "Business Bay",
+                "type": "apartment",
+                "title": "Executive Towers 2BR",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Executive Towers",
+                "listedAt": "2026-11-18T12:26:43.167Z",
+                "priceAed": 1850000,
+                "sizeSqft": 1250,
+                "warnings": [],
+                "bathrooms": 2,
+                "reference": "MBR-1016",
+                "annualRentAed": 125000,
+                "grossYieldPct": 6.76,
+                "recommendable": true,
+                "priceAedPerSqft": 1480,
+                "serviceChargeAedPerSqft": 18.5
+              }
+            ],
+            "returned": 1,
+            "totalMatching": 1
+          },
+          "durationMs": 12
+        }
+      ],
+      "costUsd": 0.0555,
+      "model": "claude-opus-5-5",
+      "createdAt": "2026-11-26T12:28:48.395Z",
+      "finishedAt": "2026-11-26T12:28:57.609Z"
+    },
+    {
+      "id": "926de213-6043-42b1-a48e-8937fb316c0c",
+      "leadId": "310661c8-6de3-5b3f-80c8-ca4ef71e55b1",
+      "messageId": "536370e0-95b4-539e-943b-4a67509c0bea",
+      "messageIds": [
+        "536370e0-95b4-539e-943b-4a67509c0bea"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 2,
+        "budgetAed": {
+          "max": 2200000,
+          "min": null
+        },
+        "locations": [
+          "Dubai Marina"
+        ],
+        "preferences": [
+          "good rental yield"
+        ],
+        "propertyType": "apartment"
+      },
+      "recommendations": [
+        {
+          "area": "Dubai Marina",
+          "title": "Marina-view 2BR in Marina Gate 1",
+          "reason": "MBR-1001: Has the highest gross yield of the matches at 7.32%. It's a 2-bed, 1,320 sqft apartment in Marina Gate 1 with a Marina view, priced at AED 2,050,000 (AED 1,553/sqft) with an estimated rent of AED 150,000 a year. That's within budget. Its service charge is on the higher side at AED 22.5/sqft.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 2050000,
+          "reference": "MBR-1001",
+          "propertyId": "473a131f-4f8c-52d5-88d5-88ac173f49ea",
+          "annualRentAed": 150000,
+          "grossYieldPct": 7.32
+        },
+        {
+          "area": "Dubai Marina",
+          "title": "Value 2BR in Marina Diamond 2",
+          "reason": "MBR-1007: Has a 7.15% gross yield and the lowest price of the matches at AED 1,650,000 (AED 1,500/sqft). It's a 2-bed, 1,100 sqft apartment in Marina Diamond 2 with an estimated rent of AED 118,000 a year and a service charge of AED 15/sqft.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 1650000,
+          "reference": "MBR-1007",
+          "propertyId": "c6df63e6-cf34-5246-a932-498ce3585c12",
+          "annualRentAed": 118000,
+          "grossYieldPct": 7.15
+        },
+        {
+          "area": "Dubai Marina",
+          "title": "Spacious 2BR in Princess Tower",
+          "reason": "MBR-1002: Has a 6.61% gross yield and is the largest of the matches at 1,410 sqft. It's a 2-bed, 3-bath apartment in Princess Tower priced at AED 1,890,000 (AED 1,340/sqft) with an estimated rent of AED 125,000 a year.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 1890000,
+          "reference": "MBR-1002",
+          "propertyId": "21a641ec-60a8-5886-b8ec-7ae82baa48b8",
+          "annualRentAed": 125000,
+          "grossYieldPct": 6.61
+        },
+        {
+          "area": "Dubai Marina",
+          "title": "Iconic Cayan Tower 2BR",
+          "reason": "MBR-1003: Has a 6.14% gross yield. It's a 2-bed, 1,290 sqft apartment in Cayan Tower priced at AED 2,200,000, which is exactly at the top of the budget. Its estimated rent is AED 135,000 a year and its service charge is high at AED 24/sqft.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 2200000,
+          "reference": "MBR-1003",
+          "propertyId": "be54a4bd-aa04-5e04-8ec3-ed7b8ca268da",
+          "annualRentAed": 135000,
+          "grossYieldPct": 6.14
+        },
+        {
+          "area": "Dubai Marina",
+          "title": "2BR in Marina Quays West",
+          "reason": "MBR-1022: The yield is unknown because the listing has no rent figure. It's a 2-bed, 1,250 sqft apartment in Marina Quays West priced at AED 2,099,000 (AED 1,679/sqft), which is within budget. Get a rent estimate before presenting it to a lead who wants yield.",
+          "status": "available",
+          "bedrooms": 2,
+          "priceAed": 2099000,
+          "reference": "MBR-1022",
+          "propertyId": "bcb641ba-26bb-5bbc-8672-ba7a3c2edbff",
+          "annualRentAed": null,
+          "grossYieldPct": null
+        }
+      ],
+      "summary": "Karim wants to buy a 2-bed apartment in Dubai Marina for around AED 2M, so the budget cap is AED 2.2M. He prefers a good rental yield. I found 5 listings that fit, ranked by gross yield. MBR-1001 is first at 7.32%, followed by MBR-1007 at 7.15%, which is also the cheapest at AED 1.65M. I left out MBR-1023 because its asking price of AED 21,500 is clearly a typo, and MBR-1024 because it duplicates MBR-1001. MBR-1022 has no rent figure, so its yield is unknown and it's ranked last. He asked to be contacted tomorrow.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "01244731-9ca2-42d3-b7a8-13502c64f7e3",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Call Karim about 2-bed Dubai Marina options",
+            "notes": "Karim wants a 2-bed apartment in Dubai Marina for around AED 2M with a good rental yield. Present MBR-1001 (7.32% yield, AED 2.05M) and MBR-1007 (7.15% yield, AED 1.65M) first, then MBR-1002 and MBR-1003. Get a rent estimate for MBR-1022 before presenting it. Check the price on MBR-1023, which looks like a typo.",
+            "dueAt": "2026-11-27T10:00:00+04:00"
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Dubai Marina",
+            "type": "apartment",
+            "maxBedrooms": 2,
+            "maxPriceAed": 2200000,
+            "minBedrooms": 2
+          },
+          "output": {
+            "listings": [
+              {
+                "id": "7d68108c-6aa5-50b7-927f-f8eab84a6b71",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "Sea-view 2BR in Silverene Tower B",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Silverene Tower B",
+                "listedAt": "2026-11-23T12:26:43.167Z",
+                "priceAed": 21500,
+                "sizeSqft": 1180,
+                "warnings": [
+                  {
+                    "code": "price_implausible",
+                    "message": "Asking price of AED 21,500 is AED 18 per sqft, which is not a real price: probably a typo. Do not recommend until the price is fixed."
+                  }
+                ],
+                "bathrooms": 2,
+                "reference": "MBR-1023",
+                "annualRentAed": 140000,
+                "grossYieldPct": null,
+                "recommendable": false,
+                "priceAedPerSqft": 18,
+                "serviceChargeAedPerSqft": 19
+              },
+              {
+                "id": "c6df63e6-cf34-5246-a932-498ce3585c12",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "Value 2BR in Marina Diamond 2",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Marina Diamond 2",
+                "listedAt": "2026-11-17T12:26:43.167Z",
+                "priceAed": 1650000,
+                "sizeSqft": 1100,
+                "warnings": [],
+                "bathrooms": 2,
+                "reference": "MBR-1007",
+                "annualRentAed": 118000,
+                "grossYieldPct": 7.15,
+                "recommendable": true,
+                "priceAedPerSqft": 1500,
+                "serviceChargeAedPerSqft": 15
+              },
+              {
+                "id": "21a641ec-60a8-5886-b8ec-7ae82baa48b8",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "Spacious 2BR in Princess Tower",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Princess Tower",
+                "listedAt": "2026-10-27T12:26:43.167Z",
+                "priceAed": 1890000,
+                "sizeSqft": 1410,
+                "warnings": [],
+                "bathrooms": 3,
+                "reference": "MBR-1002",
+                "annualRentAed": 125000,
+                "grossYieldPct": 6.61,
+                "recommendable": true,
+                "priceAedPerSqft": 1340,
+                "serviceChargeAedPerSqft": 17
+              },
+              {
+                "id": "473a131f-4f8c-52d5-88d5-88ac173f49ea",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "Marina-view 2BR in Marina Gate 1",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Marina Gate 1",
+                "listedAt": "2026-11-14T12:26:43.167Z",
+                "priceAed": 2050000,
+                "sizeSqft": 1320,
+                "warnings": [],
+                "bathrooms": 3,
+                "reference": "MBR-1001",
+                "annualRentAed": 150000,
+                "grossYieldPct": 7.32,
+                "recommendable": true,
+                "priceAedPerSqft": 1553,
+                "serviceChargeAedPerSqft": 22.5
+              },
+              {
+                "id": "fd0bba47-47be-5eaa-8534-185b5cd796e8",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "Marina view 2BR, Marina Gate 1 (high floor)",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Marina Gate 1",
+                "listedAt": "2026-11-22T12:26:43.167Z",
+                "priceAed": 2050000,
+                "sizeSqft": 1320,
+                "warnings": [
+                  {
+                    "code": "duplicate_listing",
+                    "message": "Same unit as MBR-1001 (same building, size and price), listed later. Recommend MBR-1001 instead."
+                  }
+                ],
+                "bathrooms": 3,
+                "reference": "MBR-1024",
+                "annualRentAed": 150000,
+                "grossYieldPct": 7.32,
+                "recommendable": false,
+                "priceAedPerSqft": 1553,
+                "serviceChargeAedPerSqft": 22.5
+              },
+              {
+                "id": "bcb641ba-26bb-5bbc-8672-ba7a3c2edbff",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "2BR in Marina Quays West",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Marina Quays West",
+                "listedAt": "2026-11-25T12:26:43.167Z",
+                "priceAed": 2099000,
+                "sizeSqft": 1250,
+                "warnings": [
+                  {
+                    "code": "rent_missing",
+                    "message": "No rent figure, so the yield is unknown."
+                  }
+                ],
+                "bathrooms": 2,
+                "reference": "MBR-1022",
+                "annualRentAed": null,
+                "grossYieldPct": null,
+                "recommendable": true,
+                "priceAedPerSqft": 1679,
+                "serviceChargeAedPerSqft": 18
+              },
+              {
+                "id": "be54a4bd-aa04-5e04-8ec3-ed7b8ca268da",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "Iconic Cayan Tower 2BR",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Cayan Tower",
+                "listedAt": "2026-11-20T12:26:43.167Z",
+                "priceAed": 2200000,
+                "sizeSqft": 1290,
+                "warnings": [],
+                "bathrooms": 2,
+                "reference": "MBR-1003",
+                "annualRentAed": 135000,
+                "grossYieldPct": 6.14,
+                "recommendable": true,
+                "priceAedPerSqft": 1705,
+                "serviceChargeAedPerSqft": 24
+              }
+            ],
+            "returned": 7,
+            "totalMatching": 7
+          },
+          "durationMs": 30
+        }
+      ],
+      "costUsd": 0.0725,
+      "model": "claude-opus-5-5",
+      "createdAt": "2026-11-26T12:26:46.412Z",
+      "finishedAt": "2026-11-26T12:27:01.152Z"
+    },
+    {
+      "id": "38c5c5a9-7065-477d-ab89-e0f600e89bdd",
+      "leadId": "475073df-8f3e-5574-be40-e659901a2680",
+      "messageId": "7fc205e1-7341-56f3-a1c0-a64748f35ff5",
+      "messageIds": [
+        "7fc205e1-7341-56f3-a1c0-a64748f35ff5"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "unknown",
+        "bedrooms": null,
+        "budgetAed": {
+          "max": null,
+          "min": null
+        },
+        "locations": [],
+        "preferences": [],
+        "propertyType": null
+      },
+      "recommendations": [],
+      "summary": "Hassan Ali only wrote \"Hi\". He hasn't said what he wants yet: no area, budget, number of bedrooms or property type, and nothing about whether he wants to buy or rent. Because there was nothing to search on, no listings were searched or recommended. The agent should reply and ask what he's looking for.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "c585986d-a8ae-4ec1-84e2-d8d096b1bf5d",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Ask Hassan Ali what he's looking for",
+            "notes": "Hassan only said hi. Ask whether he wants to buy or rent (all our listings are for sale), and ask for his preferred areas, budget in AED, number of bedrooms and property type.",
+            "dueAt": null
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [],
+      "costUsd": 0.0233,
+      "model": "claude-opus-5-5",
+      "createdAt": "2026-11-26T12:28:57.659Z",
+      "finishedAt": "2026-11-26T12:29:01.457Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "Tool choice: named code, search first, nothing to search",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "called get_listing, search_listings",
+      "inputTokens": 4227,
+      "outputTokens": 103,
+      "costUsd": 0.019,
+      "durationMs": 1355
+    },
+    {
+      "caseName": "Tool choice: named code, search first, nothing to search",
+      "step": 2,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4894,
+      "outputTokens": 849,
+      "costUsd": 0.0366,
+      "durationMs": 7793
+    },
+    {
+      "caseName": "Tool choice: named code, search first, nothing to search",
+      "step": 3,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4186,
+      "outputTokens": 330,
+      "costUsd": 0.0233,
+      "durationMs": 3764
+    }
+  ]
+}

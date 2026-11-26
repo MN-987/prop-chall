@@ -1,0 +1,161 @@
+{
+  "name": "Requirements: Yousef changes his mind",
+  "covers": [
+    "1. Requirements"
+  ],
+  "input": "Earlier: 2-bed in Dubai Marina around 2M. Latest: \"Change of plan... we need 3 bedrooms now. Budget up to 4M. Same area.\"",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "locations (\"same area\") is [\"Dubai Marina\"]"
+    },
+    {
+      "ok": true,
+      "text": "bedrooms (the later message wins) is 3"
+    },
+    {
+      "ok": true,
+      "text": "budget max (\"up to 4M\") is 4000000"
+    },
+    {
+      "ok": true,
+      "text": "every recommended listing exists, is the agency's, available and fits"
+    }
+  ],
+  "durationMs": 8433,
+  "runs": [
+    {
+      "id": "dbfd6ce1-aeef-4025-bfcc-50ede9d530a7",
+      "leadId": "651d2943-9f72-5cec-979f-58bf69380af8",
+      "messageId": "66ecee80-b236-5bcc-8536-e00e18aaaca6",
+      "messageIds": [
+        "66ecee80-b236-5bcc-8536-e00e18aaaca6"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 3,
+        "budgetAed": {
+          "max": 4000000,
+          "min": null
+        },
+        "locations": [
+          "Dubai Marina"
+        ],
+        "preferences": [
+          "good rental yield"
+        ],
+        "propertyType": "apartment"
+      },
+      "recommendations": [
+        {
+          "area": "Dubai Marina",
+          "title": "3BR family apartment in Marina Gate 1",
+          "reason": "MBR-1011 is a 3-bed, 4-bath apartment of 1,900 sqft in Marina Gate 1, Dubai Marina. It costs AED 3,600,000, which is within the AED 4M budget, or about AED 1,895 per sqft. Expected rent is AED 220,000 a year, a gross yield of 6.11%. That fits his wish for a good rental yield. It is available and has no data warnings.",
+          "status": "available",
+          "bedrooms": 3,
+          "priceAed": 3600000,
+          "reference": "MBR-1011",
+          "propertyId": "44bc22be-e2ec-590c-b32a-16b1894881f5",
+          "annualRentAed": 220000,
+          "grossYieldPct": 6.11
+        }
+      ],
+      "summary": "Yousef first asked for a 2-bed apartment in Dubai Marina for around AED 2M with a good rental yield. In his latest message he changed this to 3 bedrooms with a budget of up to AED 4M in the same area, because his parents are moving in. One available listing fits: MBR-1011 in Marina Gate 1, a 3-bed at AED 3.6M with a 6.11% gross yield. He asked for a call tomorrow.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "973e0e8b-63ca-4772-8cd8-25aca4a5dc3b",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Call Yousef about 3-bed Dubai Marina option (MBR-1011)",
+            "notes": "He now needs 3 bedrooms (parents moving in), budget up to AED 4M, Dubai Marina, and still wants a good rental yield. Present MBR-1011 in Marina Gate 1: AED 3.6M, 1,900 sqft, 6.11% gross yield.",
+            "dueAt": "2026-11-27T10:00:00+04:00"
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Dubai Marina",
+            "type": "apartment",
+            "maxBedrooms": 3,
+            "maxPriceAed": 4000000,
+            "minBedrooms": 3
+          },
+          "output": {
+            "listings": [
+              {
+                "id": "44bc22be-e2ec-590c-b32a-16b1894881f5",
+                "area": "Dubai Marina",
+                "type": "apartment",
+                "title": "3BR family apartment in Marina Gate 1",
+                "status": "available",
+                "bedrooms": 3,
+                "building": "Marina Gate 1",
+                "listedAt": "2026-11-01T12:26:43.167Z",
+                "priceAed": 3600000,
+                "sizeSqft": 1900,
+                "warnings": [],
+                "bathrooms": 4,
+                "reference": "MBR-1011",
+                "annualRentAed": 220000,
+                "grossYieldPct": 6.11,
+                "recommendable": true,
+                "priceAedPerSqft": 1895,
+                "serviceChargeAedPerSqft": 22.5
+              }
+            ],
+            "returned": 1,
+            "totalMatching": 1
+          },
+          "durationMs": 20
+        }
+      ],
+      "costUsd": 0.0523,
+      "model": "claude-opus-5-5",
+      "createdAt": "2026-11-26T12:27:01.259Z",
+      "finishedAt": "2026-11-26T12:27:09.550Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "Requirements: Yousef changes his mind",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "called search_listings",
+      "inputTokens": 4379,
+      "outputTokens": 159,
+      "costUsd": 0.0207,
+      "durationMs": 2665
+    },
+    {
+      "caseName": "Requirements: Yousef changes his mind",
+      "step": 2,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4796,
+      "outputTokens": 619,
+      "costUsd": 0.0316,
+      "durationMs": 5471
+    }
+  ]
+}

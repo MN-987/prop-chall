@@ -66,6 +66,7 @@ Design: `pnpm -C api eval` runs Jest (ts-jest keeps Nest's decorator metadata) w
 - [ ] `api/evals/jest-evals.json` and `eval` script in `api/package.json`
 - [ ] Full run, then a second run with the same verdicts
 - [ ] One case per part 6 to 10, added as each part is built
+- Found by the evals and fixed: run 1 (16:19) was 17/18. On "tomorrow" sent at 01:30 on a Saturday (Dubai), the model marked the timing unclear ("Saturday or Sunday?"), so `dueAt` was null and the case expected Sunday. Not a timezone bug: the date code was never reached. Fix: one prompt rule in `agent.ts`, "tomorrow" is always the calendar day after the message's date, even after midnight or on a weekend, and is never unclear. Run 2 (16:26): 18/18, USD 0.92, 155 s. The Jev branch needs the same line before its eval runs.
 
 ## Step 5 onward: parts 6 to 10
 

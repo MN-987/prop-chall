@@ -1,0 +1,13 @@
+{
+  "name": "Part 10: no budget left gives 429 and saves no run",
+  "covers": [
+    "Part 10: Budget"
+  ],
+  "input": "The agency budget is set to USD 0.10, below the USD 0.50 a run reserves, then Sara presses the button.",
+  "status": "skipped",
+  "skipReason": "Part 10 is not built yet.",
+  "checks": [],
+  "durationMs": 0,
+  "runs": [],
+  "modelCalls": []
+}
