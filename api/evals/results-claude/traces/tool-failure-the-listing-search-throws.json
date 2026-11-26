@@ -35,10 +35,10 @@
       "text": "tasks saved is 0"
     }
   ],
-  "durationMs": 2303,
+  "durationMs": 2413,
   "runs": [
     {
-      "id": "bdf19aff-0146-43da-960e-225f2ff98e00",
+      "id": "05e5a778-0789-4b97-8afa-b5b70e0a8351",
       "leadId": "310661c8-6de3-5b3f-80c8-ca4ef71e55b1",
       "messageId": "536370e0-95b4-539e-943b-4a67509c0bea",
       "messageIds": [
@@ -73,7 +73,7 @@
             "maxPriceAed": 2200000,
             "minBedrooms": 2
           },
-          "durationMs": 0
+          "durationMs": 1
         }
       ],
       "costUsd": 0,
@@ -82,8 +82,8 @@
         "name": "claude",
         "costUsd": 0
       },
-      "createdAt": "2026-11-26T12:40:41.989Z",
-      "finishedAt": "2026-11-26T12:40:44.258Z"
+      "createdAt": "2026-11-26T13:58:54.468Z",
+      "finishedAt": "2026-11-26T13:58:56.832Z"
     }
   ],
   "modelCalls": [
@@ -95,7 +95,7 @@
       "inputTokens": 4249,
       "outputTokens": 159,
       "costUsd": 0.0202,
-      "durationMs": 2243
+      "durationMs": 2339
     }
   ]
 }

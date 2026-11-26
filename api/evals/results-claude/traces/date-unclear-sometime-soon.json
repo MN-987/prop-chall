@@ -24,17 +24,17 @@
     },
     {
       "ok": true,
-      "text": "needsClarification says why: \"Lead asked for a call 'sometime soon' without giving a day or time.\""
+      "text": "needsClarification says why: \"Lead asked to be called 'sometime soon' without giving a specific day or time.\""
     }
   ],
-  "durationMs": 14758,
+  "durationMs": 8706,
   "runs": [
     {
-      "id": "c5f9a9d4-5cb7-4231-829f-747554a7a665",
-      "leadId": "0cc7e7eb-38e7-443e-9067-f8a86aca8477",
-      "messageId": "f4ba67a0-5918-4656-acdd-463ce91839a8",
+      "id": "f4efef39-76d2-4e85-bd2a-277de5255a50",
+      "leadId": "c05fa957-7051-4864-8091-384a40f119ad",
+      "messageId": "1f83b7cf-fb7c-41d5-bdf6-a8ece5709f3f",
       "messageIds": [
-        "f4ba67a0-5918-4656-acdd-463ce91839a8"
+        "1f83b7cf-fb7c-41d5-bdf6-a8ece5709f3f"
       ],
       "trigger": "manual",
       "status": "completed",
@@ -52,19 +52,19 @@
         "propertyType": "apartment"
       },
       "recommendations": [],
-      "summary": "The lead wants to buy a 1-bed apartment in Jumeirah Lake Towers (JLT) for up to AED 1.3M. We have no 1-bed apartments listed in JLT at any price, so I'm not recommending anything. Ask whether they'd look at nearby areas like Dubai Marina or JBR, or a different size of home. They asked for a call 'sometime soon' but didn't give a time.",
+      "summary": "The lead wants to buy a 1-bed apartment in Jumeirah Lake Towers for up to AED 1.3M. We have no 1-bed apartments listed in JLT at any price, even with the budget limit removed, so there is nothing to recommend. The agent could ask whether they would look at other areas or a different size. They want a call 'sometime soon' but gave no specific time.",
       "priceChecks": [],
       "proposedActions": [
         {
-          "id": "663371d7-2b09-4cb6-833b-b79553517dbe",
+          "id": "4bd0f802-3661-43c3-97b6-2a0f4e560043",
           "type": "create_follow_up_task",
           "status": "pending_approval",
           "task": {
-            "title": "Call lead about 1-bed JLT apartment (up to AED 1.3M)",
-            "notes": "We have no 1-bed apartments listed in JLT at any price. Ask whether they'd consider other areas or a different number of bedrooms, and confirm the budget.",
+            "title": "Call lead about 1-bed apartment options in JLT (up to AED 1.3M)",
+            "notes": "We have no 1-bed JLT apartments listed at any price. Ask whether they would consider nearby areas like Dubai Marina, JBR or JVC, or a studio or 2-bed.",
             "dueAt": null
           },
-          "needsClarification": "Lead asked for a call 'sometime soon' without giving a day or time.",
+          "needsClarification": "Lead asked to be called 'sometime soon' without giving a specific day or time.",
           "taskId": null
         }
       ],
@@ -83,7 +83,7 @@
             "returned": 0,
             "totalMatching": 0
           },
-          "durationMs": 7
+          "durationMs": 6
         },
         {
           "tool": "search_listings",
@@ -98,17 +98,17 @@
             "returned": 0,
             "totalMatching": 0
           },
-          "durationMs": 25
+          "durationMs": 42
         }
       ],
-      "costUsd": 0.0676,
+      "costUsd": 0.0675,
       "model": "claude-opus-5-5",
       "toolPlanner": {
         "name": "claude",
         "costUsd": 0
       },
-      "createdAt": "2026-11-26T12:39:40.578Z",
-      "finishedAt": "2026-11-26T12:39:55.249Z"
+      "createdAt": "2026-11-26T13:58:00.832Z",
+      "finishedAt": "2026-11-26T13:58:09.473Z"
     }
   ],
   "modelCalls": [
@@ -120,7 +120,7 @@
       "inputTokens": 4237,
       "outputTokens": 164,
       "costUsd": 0.0202,
-      "durationMs": 2599
+      "durationMs": 2640
     },
     {
       "caseName": "Date: unclear (\"sometime soon\")",
@@ -128,19 +128,19 @@
       "model": "claude-opus-5-5",
       "did": "called search_listings",
       "inputTokens": 4429,
-      "outputTokens": 154,
-      "costUsd": 0.0208,
-      "durationMs": 7283
+      "outputTokens": 147,
+      "costUsd": 0.0207,
+      "durationMs": 1752
     },
     {
       "caseName": "Date: unclear (\"sometime soon\")",
       "step": 3,
       "model": "claude-opus-5-5",
       "did": "final answer",
-      "inputTokens": 4611,
-      "outputTokens": 407,
+      "inputTokens": 4604,
+      "outputTokens": 408,
       "costUsd": 0.0266,
-      "durationMs": 4730
+      "durationMs": 4159
     }
   ]
 }

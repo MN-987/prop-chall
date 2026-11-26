@@ -4,7 +4,7 @@
     "3. No suitable property"
   ],
   "input": "Hello, I'm looking to rent a 2-bed in Business Bay for about 120k a year, moving in next month.",
-  "status": "pass",
+  "status": "fail",
   "checks": [
     {
       "ok": true,
@@ -15,145 +15,54 @@
       "text": "API contract shape matches TASK.md"
     },
     {
-      "ok": true,
-      "text": "run status is \"completed\""
+      "ok": false,
+      "text": "run status: expected \"completed\", got \"failed\""
     },
     {
-      "ok": true,
-      "text": "intent is \"rent\""
+      "ok": false,
+      "text": "intent: expected \"rent\", got \"unknown\""
     },
     {
       "ok": true,
       "text": "recommendations (all listings are for sale) is []"
     }
   ],
-  "durationMs": 6117,
+  "durationMs": 26,
   "runs": [
     {
-      "id": "2bf5085f-ac4c-4a12-9ef1-852fbd3c3707",
+      "id": "be5859e8-54a3-4b43-9b5b-96d28fd2400c",
       "leadId": "4e9649a2-b0e3-5342-a303-87e4b5eba73f",
       "messageId": "528b3bb0-1b9c-5a38-8d4a-ba3cc7c3968d",
       "messageIds": [
         "528b3bb0-1b9c-5a38-8d4a-ba3cc7c3968d"
       ],
       "trigger": "manual",
-      "status": "completed",
+      "status": "failed",
+      "error": "The jev tool planner failed: TYPESAFE_API_KEY is not set in api/.env",
       "requirements": {
-        "intent": "rent",
-        "bedrooms": 2,
+        "locations": [],
+        "bedrooms": null,
         "budgetAed": {
-          "max": 132000,
-          "min": null
+          "min": null,
+          "max": null
         },
-        "locations": [
-          "Business Bay"
-        ],
-        "preferences": [
-          "moving in next month"
-        ],
-        "propertyType": null
+        "propertyType": null,
+        "intent": "unknown",
+        "preferences": []
       },
       "recommendations": [],
-      "summary": "Priya wants to rent a 2-bed in Business Bay for about AED 120k per year (budget read as up to AED 132,000), moving in next month. All agency listings are for sale, so nothing fits a rental request and no listing is recommended. The only Business Bay 2-bed found is MBR-1016 (Executive Towers 2BR), which is for sale at AED 1,850,000 with an estimated annual rent of AED 125,000. The agent may want to ask whether she would consider buying, or refer her for rentals.",
+      "summary": "",
       "priceChecks": [],
-      "proposedActions": [
-        {
-          "id": "796c475e-5ebc-4ee3-b9e9-c97f47978369",
-          "type": "create_follow_up_task",
-          "status": "pending_approval",
-          "task": {
-            "title": "Contact Priya about her 2-bed Business Bay rental request",
-            "notes": "Lead wants to rent (about AED 120k/year, move-in next month); the agency only has sale listings. Ask if she would consider buying (e.g. MBR-1016 at AED 1.85M) or refer her for rentals.",
-            "dueAt": null
-          },
-          "needsClarification": null,
-          "taskId": null
-        }
-      ],
-      "trace": [
-        {
-          "tool": "search_listings",
-          "input": {
-            "area": "Business Bay",
-            "maxBedrooms": 2,
-            "minBedrooms": 2
-          },
-          "output": {
-            "listings": [
-              {
-                "id": "8adb5b76-662d-5dba-9025-48cabe58b131",
-                "area": "Business Bay",
-                "type": "apartment",
-                "title": "Executive Towers 2BR",
-                "status": "available",
-                "bedrooms": 2,
-                "building": "Executive Towers",
-                "listedAt": "2026-11-18T12:41:22.480Z",
-                "priceAed": 1850000,
-                "sizeSqft": 1250,
-                "warnings": [],
-                "bathrooms": 2,
-                "reference": "MBR-1016",
-                "annualRentAed": 125000,
-                "grossYieldPct": 6.76,
-                "recommendable": true,
-                "priceAedPerSqft": 1480,
-                "serviceChargeAedPerSqft": 18.5
-              }
-            ],
-            "returned": 1,
-            "totalMatching": 1
-          },
-          "durationMs": 52
-        }
-      ],
-      "costUsd": 0.0232,
+      "proposedActions": [],
+      "trace": [],
+      "costUsd": 0,
       "model": "claude-opus-5-5",
       "toolPlanner": {
-        "name": "jev",
-        "costUsd": 0.000053,
-        "decisions": {
-          "type": {
-            "villa": 0,
-            "apartment": 0.33,
-            "penthouse": 0,
-            "townhouse": 0,
-            "not_stated": 0.67
-          },
-          "area_0": 0.01,
-          "area_1": 0.99,
-          "area_2": 0.04,
-          "area_3": 0.02,
-          "area_4": 0.02,
-          "area_5": 0.02,
-          "area_6": 0.01,
-          "area_7": 0.02,
-          "area_8": 0.01,
-          "area_9": 0.01,
-          "looking": 0.99,
-          "bedrooms_0": 0.1,
-          "bedrooms_1": 0.12,
-          "bedrooms_2": 0.97,
-          "bedrooms_3": 0.16,
-          "bedrooms_4": 0.09,
-          "bedrooms_5": 0.08,
-          "bedrooms_stated": 0.97
-        }
+        "name": "jev"
       },
-      "createdAt": "2026-11-26T12:42:04.667Z",
-      "finishedAt": "2026-11-26T12:42:10.719Z"
+      "createdAt": "2026-11-26T13:56:46.845Z",
+      "finishedAt": "2026-11-26T13:56:46.854Z"
     }
   ],
-  "modelCalls": [
-    {
-      "caseName": "No fit: Priya wants to rent",
-      "step": 1,
-      "model": "claude-opus-5-5",
-      "did": "final answer",
-      "inputTokens": 3652,
-      "outputTokens": 426,
-      "costUsd": 0.0231,
-      "durationMs": 5052
-    }
-  ]
+  "modelCalls": []
 }

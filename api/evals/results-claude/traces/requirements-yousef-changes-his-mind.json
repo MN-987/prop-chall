@@ -35,10 +35,10 @@
       "text": "every recommended listing exists, is the agency's, available and fits"
     }
   ],
-  "durationMs": 9166,
+  "durationMs": 8180,
   "runs": [
     {
-      "id": "a487ff5f-7527-47da-b1c5-6a536c857d6c",
+      "id": "8ff4498a-dddd-4f61-87bc-ae9ce8d35417",
       "leadId": "651d2943-9f72-5cec-979f-58bf69380af8",
       "messageId": "66ecee80-b236-5bcc-8536-e00e18aaaca6",
       "messageIds": [
@@ -65,7 +65,7 @@
         {
           "area": "Dubai Marina",
           "title": "3BR family apartment in Marina Gate 1",
-          "reason": "MBR-1011 is a 3-bed, 4-bath family apartment in Marina Gate 1, Dubai Marina. It costs AED 3,600,000, which is within the AED 4M budget. It is 1,900 sqft (about AED 1,895/sqft). The estimated rent is AED 220,000 a year, a gross yield of 6.11%, which fits Yousef's earlier wish for a good rental yield. It is available and has no data warnings.",
+          "reason": "MBR-1011, a 3-bed apartment of 1,900 sqft in Marina Gate 1, Dubai Marina. Priced at AED 3,600,000 (AED 1,895/sqft), which is within the 4M budget. Its estimated annual rent of AED 220,000 gives a gross yield of 6.11%, which fits his wish for a good rental yield. It has 4 bathrooms, which suits his parents moving in. It is available.",
           "status": "available",
           "bedrooms": 3,
           "priceAed": 3600000,
@@ -75,16 +75,16 @@
           "grossYieldPct": 6.11
         }
       ],
-      "summary": "Yousef has changed his search. His parents are moving in, so he now wants a 3-bed apartment in Dubai Marina for up to AED 4M, instead of a 2-bed for around AED 2M. His earlier wish for a good rental yield still stands. Only one listing fits: MBR-1011 in Marina Gate 1, at AED 3.6M for 1,900 sqft with a 6.11% gross yield. He asked for a call tomorrow.",
+      "summary": "Yousef has changed what he wants: he now needs a 3-bedroom apartment in Dubai Marina with a budget of up to AED 4M, because his parents are moving in. This replaces his earlier request for a 2-bed at around 2M. He still wants a good rental yield. Only one listing fits: MBR-1011 at Marina Gate 1, priced at AED 3.6M with a 6.11% gross yield and no data warnings. He asked for a call tomorrow.",
       "priceChecks": [],
       "proposedActions": [
         {
-          "id": "62fcde99-b973-453b-936e-8b4c04167465",
+          "id": "cc06d207-71f9-40c4-8e4f-7bb06019fd7c",
           "type": "create_follow_up_task",
           "status": "pending_approval",
           "task": {
             "title": "Call Yousef about 3-bed Dubai Marina options (MBR-1011)",
-            "notes": "His needs changed: he now wants 3 bedrooms (his parents are moving in) and his budget is up to AED 4M in Dubai Marina. Present MBR-1011 in Marina Gate 1: AED 3.6M, 1,900 sqft, 6.11% gross yield.",
+            "notes": "He now needs 3 bedrooms, up to AED 4M, in Dubai Marina, and wants a good rental yield. Present MBR-1011: Marina Gate 1, AED 3.6M, 1,900 sqft, 6.11% gross yield.",
             "dueAt": "2026-11-27T10:00:00+04:00"
           },
           "needsClarification": null,
@@ -111,7 +111,7 @@
                 "status": "available",
                 "bedrooms": 3,
                 "building": "Marina Gate 1",
-                "listedAt": "2026-11-01T12:38:25.228Z",
+                "listedAt": "2026-11-01T13:56:51.544Z",
                 "priceAed": 3600000,
                 "sizeSqft": 1900,
                 "warnings": [],
@@ -127,17 +127,17 @@
             "returned": 1,
             "totalMatching": 1
           },
-          "durationMs": 14
+          "durationMs": 12
         }
       ],
-      "costUsd": 0.0534,
+      "costUsd": 0.0524,
       "model": "claude-opus-5-5",
       "toolPlanner": {
         "name": "claude",
         "costUsd": 0
       },
-      "createdAt": "2026-11-26T12:38:46.691Z",
-      "finishedAt": "2026-11-26T12:38:55.810Z"
+      "createdAt": "2026-11-26T13:57:10.047Z",
+      "finishedAt": "2026-11-26T13:57:18.195Z"
     }
   ],
   "modelCalls": [
@@ -149,7 +149,7 @@
       "inputTokens": 4379,
       "outputTokens": 159,
       "costUsd": 0.0207,
-      "durationMs": 2725
+      "durationMs": 2612
     },
     {
       "caseName": "Requirements: Yousef changes his mind",
@@ -157,9 +157,9 @@
       "model": "claude-opus-5-5",
       "did": "final answer",
       "inputTokens": 4796,
-      "outputTokens": 675,
-      "costUsd": 0.0327,
-      "durationMs": 6327
+      "outputTokens": 626,
+      "costUsd": 0.0317,
+      "durationMs": 5494
     }
   ]
 }
