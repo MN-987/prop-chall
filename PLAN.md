@@ -55,6 +55,20 @@ Agreed 15:30 after the developer's first click-through: the panel showed only "A
 - [x] Web (second agent): Analyze uses `async=true`, polls every second, shows live steps from the trace (`AssistantSteps.tsx`); result in cards (what the lead wants as tags, one card per listing with rank, price, yield badge and reason, summary card, follow-up card with due date and Approve/Reject, collapsible "How it decided"). 10 web tests and typecheck green; step labels checked against the API's trace fields.
 - [ ] Developer click-through of the new panel.
 
+## Step 3c: pluggable tool planner (branch `feat/tool-planner`)
+
+Agreed 15:50. The developer's design: a strategy pattern for "who chooses the tools", so TypeSafe's Jev can choose the tools while Claude does the rest, switchable per run. Built in a separate worktree while another session builds the evals on the main folder. Part 6 moves after this.
+
+- [x] `ToolPlanner` interface; `claude` strategy = today's agent loop (Claude chooses and calls the tools).
+- [x] `jev` strategy: one TypeSafe `systemOne` request (looking for a property? which areas, bedrooms, type; which listing codes found in the text the lead asks about); code runs the chosen tools through the same traced tools; Claude then ranks, explains and drafts the follow-up with no tools.
+- [x] Same trace, same code checks, same API response; the run records which planner it used.
+- [x] Switch: `TOOL_PLANNER` in `api/.env` (default `claude`), per run `{ "planner": "jev" }` in the POST body; a toggle on the web panel.
+- [x] A Jev failure fails the run (never "nothing found").
+- [x] Tests with stand-ins for both Jev and Claude (no API cost); live check if a `TYPESAFE_API_KEY` is available.
+
+- Found and fixed: a generated migration wanted to drop the hand-written partial unique index (the entity did not declare it). The index is now declared on the entity with its expression, so the generator reports no change.
+- Eval comparison (same suite, prompt fix from main included, 16:38 to 16:43): Claude chooses 18/18, 168.6 s, Claude USD 0.92; Jev chooses 18/18, 134.0 s, Claude USD 0.49 + Jev USD 0.001. Same verdict on every case. Details in `api/evals/compare.md` and `compare.html`.
+
 ## Step 4: evals
 
 Agreed 15:50. Built by a second agent in `api/evals/` only, in parallel with step 3b.

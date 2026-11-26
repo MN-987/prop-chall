@@ -169,6 +169,18 @@ describe('AssistantPanel', () => {
     expect(screen.queryByText('Checking the picks against the data and drafting the follow-up')).not.toBeInTheDocument();
   });
 
+  it('sends the chosen tool planner with the run, and says which one chose the tools', async () => {
+    mocked.listRuns.mockResolvedValue([]);
+    mocked.startRun.mockResolvedValue({ ...run, toolPlanner: { name: 'jev', costUsd: 0.0001 } });
+    renderPanel();
+
+    fireEvent.change(await screen.findByLabelText('Tools chosen by'), { target: { value: 'jev' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Analyze latest message' }));
+
+    await waitFor(() => expect(mocked.startRun).toHaveBeenCalledWith('tok', 'lead-1', 'jev'));
+    expect(await screen.findByText(/tools chosen by Jev/)).toBeInTheDocument();
+  });
+
   it('approves a follow-up, updates it in place, shows warnings and tells the page', async () => {
     mocked.listRuns.mockResolvedValue([run]);
     mocked.approveAction.mockResolvedValue({

@@ -1,0 +1,96 @@
+{
+  "name": "No fit: Priya wants to rent",
+  "covers": [
+    "3. No suitable property"
+  ],
+  "input": "Hello, I'm looking to rent a 2-bed in Business Bay for about 120k a year, moving in next month.",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "intent is \"rent\""
+    },
+    {
+      "ok": true,
+      "text": "recommendations (all listings are for sale) is []"
+    }
+  ],
+  "durationMs": 6708,
+  "runs": [
+    {
+      "id": "319cd18b-dc59-4176-b297-6d511a95a1c8",
+      "leadId": "4e9649a2-b0e3-5342-a303-87e4b5eba73f",
+      "messageId": "528b3bb0-1b9c-5a38-8d4a-ba3cc7c3968d",
+      "messageIds": [
+        "528b3bb0-1b9c-5a38-8d4a-ba3cc7c3968d"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "rent",
+        "bedrooms": 2,
+        "budgetAed": {
+          "max": 132000,
+          "min": null
+        },
+        "locations": [
+          "Business Bay"
+        ],
+        "preferences": [
+          "moving in next month"
+        ],
+        "propertyType": null
+      },
+      "recommendations": [],
+      "summary": "Priya Nair wants to rent a 2-bed in Business Bay for about AED 120k a year (budget up to about AED 132,000) and plans to move in next month. All of the agency's listings are for sale, so none fit a rental and I have not recommended any. I did not run a search, because no sale listing could meet a rental request. Let her know the agency only has properties for sale. You could ask whether she would think about buying, or refer her to a rental service.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "30ebc58e-cdba-4fbc-9168-6017dfa4b461",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Reply to Priya Nair about her 2-bed Business Bay rental request",
+            "notes": "She wants to rent a 2-bed in Business Bay for about AED 120k a year and move in next month. The agency only has listings for sale. Tell her this and ask whether she would think about buying, or refer her for rentals.",
+            "dueAt": null
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [],
+      "costUsd": 0.0288,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "claude",
+        "costUsd": 0
+      },
+      "createdAt": "2026-11-26T12:39:22.061Z",
+      "finishedAt": "2026-11-26T12:39:28.722Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "No fit: Priya wants to rent",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4220,
+      "outputTokens": 597,
+      "costUsd": 0.0288,
+      "durationMs": 6647
+    }
+  ]
+}

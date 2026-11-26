@@ -5,7 +5,8 @@ import { MockLanguageModelV3 } from 'ai/test';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
-import { ASSISTANT_LANGUAGE_MODEL, AssistantService } from '../src/assistant/assistant.service';
+import { ASSISTANT_LANGUAGE_MODEL, AssistantService, TYPESAFE_CLIENT } from '../src/assistant/assistant.service';
+import type { JevClient } from '../src/assistant/planners/jev-tool-planner';
 import { stableId } from '../src/db/stable-id';
 import { AssistantRun, Lead, Message, Property, Task } from '../src/entities';
 
@@ -13,6 +14,9 @@ import { AssistantRun, Lead, Message, Property, Task } from '../src/entities';
  * The assistant's endpoints against the test database, with a scripted stand-in model: no API key, no cost, and the
  * same answer every time. What the real model does is covered by the eval suite.
  */
+
+// Runs without a `planner` in the body use the default planner: pin it, whatever a developer's api/.env says.
+process.env.TOOL_PLANNER = 'claude';
 
 type Step = Awaited<ReturnType<MockLanguageModelV3['doGenerate']>>;
 const usage = {
@@ -46,6 +50,24 @@ const model = new MockLanguageModelV3({
 
 const KARIM = stableId('lead', 'karim');
 
+/** Stand-in for TypeSafe: yes (0.9) to the question ids in `jevYes`, no to the rest; choices answer `jevType`. */
+let jevYes: string[] = [];
+let jevType = 'not_stated';
+let jevAvailable = true;
+const jev: JevClient = {
+  systemOne: async (request) => {
+    if (!jevAvailable) throw new Error('TypeSafe is unreachable');
+    const answers = Object.fromEntries(
+      Object.entries(request.questions).map(([id, q]) =>
+        q.type === 'choice'
+          ? [id, { type: 'choice', choice: jevType, confidence: 0.9, probabilities: { [jevType]: 0.9 } }]
+          : [id, { type: 'noul', noul: jevYes.includes(id) ? 0.9 : 0.1 }],
+      ),
+    );
+    return { model: 'jev-test', answers, usage: { input_tokens: 2000, output_tokens: 0 } } as never;
+  },
+};
+
 function karimAnswer(propertyIds: string[]) {
   return {
     requirements: {
@@ -77,6 +99,8 @@ describe('AI assistant endpoints (against the test database, stand-in model)', (
     const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
       .overrideProvider(ASSISTANT_LANGUAGE_MODEL)
       .useValue(model)
+      .overrideProvider(TYPESAFE_CLIENT)
+      .useValue(jev)
       .compile();
     app = moduleRef.createNestApplication();
     await app.listen(0, '127.0.0.1');
@@ -259,6 +283,48 @@ describe('AI assistant endpoints (against the test database, stand-in model)', (
     const after = await em.fork().findOneOrFail(AssistantRun, orphan.id);
     expect(after.status).toBe('failed');
     expect(after.error).toContain('restarted');
+  });
+
+  it('with planner "jev", Jev chooses and code runs the tool calls; Claude only writes, with no tools', async () => {
+    const sara = await auth('sara@marinabay.test');
+    const areas = (await em.fork().getConnection().execute<{ area: string }[]>(
+      "select distinct area from properties where agency_id = (select agency_id from leads where id = ?) order by area",
+      [KARIM],
+    )).map((r) => r.area);
+    jevYes = ['looking', `area_${areas.indexOf('Dubai Marina')}`, 'bedrooms_stated', 'bedrooms_2'];
+    jevType = 'apartment';
+    const callsBefore = model.doGenerateCalls.length;
+    script = [finalAnswer(karimAnswer([await idOf('MBR-1001')]))];
+
+    const { body: run } = await http().post(`/leads/${KARIM}/assistant/runs`).set(sara).send({ planner: 'jev' }).expect(201);
+
+    expect(run.status).toBe('completed');
+    expect(run.toolPlanner).toMatchObject({ name: 'jev' });
+    expect(run.trace).toHaveLength(1);
+    expect(run.trace[0]).toMatchObject({
+      tool: 'search_listings',
+      input: { area: 'Dubai Marina', type: 'apartment', minBedrooms: 2, maxBedrooms: 2 },
+    });
+    expect(run.recommendations.map((r: { reference: string }) => r.reference)).toEqual(['MBR-1001']);
+    // Claude was called once, with no tools, and saw the results as data.
+    const claudeCalls = model.doGenerateCalls.slice(callsBefore);
+    expect(claudeCalls).toHaveLength(1);
+    expect(claudeCalls[0].tools ?? []).toEqual([]);
+    expect(JSON.stringify(claudeCalls[0].prompt)).toContain('<tool_results>');
+  });
+
+  it('reports a Jev failure as a failed run, never as nothing found', async () => {
+    const sara = await auth('sara@marinabay.test');
+    jevAvailable = false;
+    try {
+      const { body: run } = await http().post(`/leads/${KARIM}/assistant/runs`).set(sara).send({ planner: 'jev' }).expect(201);
+      expect(run.status).toBe('failed');
+      expect(run.error).toContain('jev tool planner failed');
+      expect(run.recommendations).toEqual([]);
+    } finally {
+      jevAvailable = true;
+    }
+    await http().post(`/leads/${KARIM}/assistant/runs`).set(sara).send({ planner: 'gpt' }).expect(400);
   });
 
   it("answers 404 for another agency's lead, run and action, and 422 for a lead that never wrote", async () => {

@@ -2,6 +2,8 @@ import { anthropic } from '@ai-sdk/anthropic';
 import { generateText, LanguageModel, LanguageModelUsage, Output, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { Property, PROPERTY_TYPES } from '../entities';
+import { ClaudeToolPlanner } from './planners/claude-tool-planner';
+import type { PlannerRecord, PreparedTools, ToolPlanner } from './planners/tool-planner';
 import { CheckedListing, escapeTags, TraceEntry, ToolContext, buildTools } from './tools';
 
 export const DEFAULT_MODEL = process.env.ASSISTANT_MODEL ?? 'claude-opus-5-5';
@@ -96,6 +98,15 @@ The follow-up task:
 
 The summary: a few plain sentences for the agent, in English even if the lead wrote in another language. It must agree with the data and the recommendations.`;
 
+/** Added to the system prompt when a planner already chose and ran the tool calls (the `jev` strategy). */
+export const NO_TOOLS_NOTE = `In this run you have no tools. The system already chose and ran the tool calls for this conversation; their results are inside <tool_results>. Treat them as the only listings you know about, and recommend only from them. The searches were run without a price filter: apply the lead's budget yourself. If the searches look wrong for what the lead asked, say so in the summary instead of guessing.`;
+
+function toolResultsBlock(results: TraceEntry[]): string {
+  return `\n\nTool calls the system already ran, in order:\n<tool_results>${JSON.stringify(
+    results.map((r) => ({ tool: r.tool, input: r.input, output: r.output ?? null })),
+  )}</tool_results>`;
+}
+
 export interface ConversationMessage {
   id: string;
   direction: 'inbound' | 'outbound';
@@ -113,6 +124,8 @@ export interface AgentInput {
   tools: Omit<ToolContext, 'trace' | 'seen' | 'onToolError' | 'onTrace'>;
   /** Called after every tool call with the trace so far (for live progress). */
   onTrace?: ToolContext['onTrace'];
+  /** Who chooses the tools (strategy). Default: Claude, in its own agent loop. */
+  planner?: ToolPlanner;
   /** For tests: a stand-in model. Defaults to Anthropic's `modelId`. */
   model?: LanguageModel;
   /** Model id, for the call and for pricing. Defaults to ASSISTANT_MODEL or claude-opus-5-5. */
@@ -140,6 +153,8 @@ export interface AgentResult {
   /** Recommendations the model made that code refused, with why. Kept for the trace and the evals. */
   rejectedRecommendations: Array<{ propertyId: string; why: string }>;
   trace: TraceEntry[];
+  /** Which strategy chose the tools, and what it decided. */
+  planner: PlannerRecord | null;
   usage: LanguageModelUsage | null;
   costUsd: number;
   durationMs: number;
@@ -149,6 +164,8 @@ export interface AgentFailure {
   ok: false;
   error: string;
   trace: TraceEntry[];
+  /** Which strategy chose the tools, and what it decided. */
+  planner: PlannerRecord | null;
   usage: LanguageModelUsage | null;
   costUsd: number;
   durationMs: number;
@@ -251,9 +268,13 @@ async function checkRecommendations(ctx: ToolContext, answer: ModelAnswer) {
   return { kept, rejected };
 }
 
+/** A failure of the tool-choosing step itself (for example the Jev service), reported as such. */
+class PlannerError extends Error {}
+
 export async function runAgent(input: AgentInput): Promise<AgentResult | AgentFailure> {
   const started = Date.now();
   const modelId = input.modelId ?? DEFAULT_MODEL;
+  const planner = input.planner ?? new ClaudeToolPlanner();
   const trace: TraceEntry[] = [];
   const abort = new AbortController();
   let toolFailure: string | null = null;
@@ -269,15 +290,34 @@ export async function runAgent(input: AgentInput): Promise<AgentResult | AgentFa
   };
 
   let usage: LanguageModelUsage | null = null;
+  let plannerRecord: PlannerRecord | null = null;
+  const totalCost = () => Math.round((costOf(usage, modelId) + (plannerRecord?.costUsd ?? 0)) * 10_000) / 10_000;
   try {
+    // The only step that differs between strategies: who chooses (and possibly already runs) the tool calls.
+    let prepared: PreparedTools;
+    try {
+      prepared = await planner.prepare({
+        messages: input.messages,
+        newMessageIds: input.newMessageIds,
+        areas: input.tools.areas,
+        tools: buildTools(ctx),
+        trace,
+      });
+    } catch (error) {
+      if (toolFailure) throw error;
+      throw new PlannerError(`The ${planner.name} tool planner failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    plannerRecord = prepared.record;
+    const modelHasTools = prepared.toolsForModel !== undefined;
+
     const result = await generateText({
       model: input.model ?? anthropic(modelId),
-      system: SYSTEM_PROMPT,
-      prompt: buildConversation(input),
-      tools: buildTools(ctx),
+      system: modelHasTools ? SYSTEM_PROMPT : `${SYSTEM_PROMPT}\n\n${NO_TOOLS_NOTE}`,
+      prompt: buildConversation(input) + (modelHasTools ? "" : toolResultsBlock(prepared.preloadedResults)),
+      tools: prepared.toolsForModel,
       stopWhen: stepCountIs(MAX_STEPS),
       output: Output.object({ schema: modelAnswerSchema }),
-      providerOptions: { anthropic: { effort: 'medium' } },
+      providerOptions: { anthropic: { effort: "medium" } },
       abortSignal: abort.signal,
       maxRetries: 2,
     });
@@ -292,11 +332,14 @@ export async function runAgent(input: AgentInput): Promise<AgentResult | AgentFa
       rejectedRecommendations: rejected,
       trace,
       usage,
-      costUsd: costOf(usage, modelId),
+      planner: plannerRecord,
+      costUsd: totalCost(),
       durationMs: Date.now() - started,
     };
   } catch (error) {
-    const message = toolFailure ?? `The model call failed: ${error instanceof Error ? error.message : String(error)}`;
-    return { ok: false, error: message, trace, usage, costUsd: costOf(usage, modelId), durationMs: Date.now() - started };
+    const message =
+      toolFailure ??
+      (error instanceof PlannerError ? error.message : `The model call failed: ${error instanceof Error ? error.message : String(error)}`);
+    return { ok: false, error: message, trace, usage, planner: plannerRecord, costUsd: totalCost(), durationMs: Date.now() - started };
   }
 }

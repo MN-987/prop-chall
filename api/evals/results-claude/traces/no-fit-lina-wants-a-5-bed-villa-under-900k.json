@@ -1,0 +1,152 @@
+{
+  "name": "No fit: Lina wants a 5-bed villa under 900k",
+  "covers": [
+    "3. No suitable property"
+  ],
+  "input": "Hi, I want a 5-bedroom villa in Dubai Marina for under 900k AED. Ready to buy this week.",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "HTTP status is 201"
+    },
+    {
+      "ok": true,
+      "text": "API contract shape matches TASK.md"
+    },
+    {
+      "ok": true,
+      "text": "run status is \"completed\""
+    },
+    {
+      "ok": true,
+      "text": "recommendations is []"
+    },
+    {
+      "ok": true,
+      "text": "bedrooms is 5"
+    },
+    {
+      "ok": true,
+      "text": "propertyType is \"villa\""
+    }
+  ],
+  "durationMs": 9694,
+  "runs": [
+    {
+      "id": "f3ee96e9-4ae5-444b-aa99-356334bfa218",
+      "leadId": "0bab04e6-d42d-521e-aa18-d256456a6b69",
+      "messageId": "6fd52efc-4a8a-5dc8-b6d5-fa1f85a045db",
+      "messageIds": [
+        "6fd52efc-4a8a-5dc8-b6d5-fa1f85a045db"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 5,
+        "budgetAed": {
+          "max": 900000,
+          "min": null
+        },
+        "locations": [
+          "Dubai Marina"
+        ],
+        "preferences": [
+          "ready to buy this week"
+        ],
+        "propertyType": "villa"
+      },
+      "recommendations": [],
+      "summary": "Lina wants to buy a 5-bedroom villa in Dubai Marina for under AED 900,000 and says she is ready to buy this week. We have nothing that fits. A search with her exact filters found no listings. I then dropped the price limit and searched again, and there are still no 5-bedroom villas in Dubai Marina at any price. Her budget is also far too low for a 5-bed villa in Dubai. The agent should ask her what matters most: the area, the property type, the size or the budget.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "c9a96852-2c15-4547-96ce-e1b805e16ec7",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Call Lina Haddad about her 5-bed Dubai Marina villa request (nothing fits)",
+            "notes": "No 5-bed villas listed in Dubai Marina at any price, and AED 900k is far too low for one. Ask which she can change: area, property type, bedrooms or budget. She says she is ready to buy this week.",
+            "dueAt": null
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Dubai Marina",
+            "type": "villa",
+            "maxBedrooms": 5,
+            "maxPriceAed": 900000,
+            "minBedrooms": 5
+          },
+          "output": {
+            "listings": [],
+            "returned": 0,
+            "totalMatching": 0
+          },
+          "durationMs": 8
+        },
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Dubai Marina",
+            "type": "villa",
+            "maxBedrooms": 5,
+            "minBedrooms": 5
+          },
+          "output": {
+            "listings": [],
+            "returned": 0,
+            "totalMatching": 0
+          },
+          "durationMs": 14
+        }
+      ],
+      "costUsd": 0.0677,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "claude",
+        "costUsd": 0
+      },
+      "createdAt": "2026-11-26T12:39:12.364Z",
+      "finishedAt": "2026-11-26T12:39:21.977Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "No fit: Lina wants a 5-bed villa under 900k",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "called search_listings",
+      "inputTokens": 4224,
+      "outputTokens": 157,
+      "costUsd": 0.02,
+      "durationMs": 2272
+    },
+    {
+      "caseName": "No fit: Lina wants a 5-bed villa under 900k",
+      "step": 2,
+      "model": "claude-opus-5-5",
+      "did": "called search_listings",
+      "inputTokens": 4409,
+      "outputTokens": 156,
+      "costUsd": 0.0208,
+      "durationMs": 2749
+    },
+    {
+      "caseName": "No fit: Lina wants a 5-bed villa under 900k",
+      "step": 3,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4593,
+      "outputTokens": 428,
+      "costUsd": 0.0269,
+      "durationMs": 4538
+    }
+  ]
+}
