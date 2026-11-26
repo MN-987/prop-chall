@@ -1,0 +1,13 @@
+{
+  "name": "Part 6: a WhatsApp burst makes one run; a retry is not saved twice",
+  "covers": [
+    "Part 6: WhatsApp"
+  ],
+  "input": "Three WhatsApp messages in a row from a new number, then the provider retries the first one.",
+  "status": "skipped",
+  "skipReason": "Part 6 is not built yet.",
+  "checks": [],
+  "durationMs": 0,
+  "runs": [],
+  "modelCalls": []
+}

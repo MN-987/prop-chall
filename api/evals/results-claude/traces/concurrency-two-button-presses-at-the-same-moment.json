@@ -1,0 +1,155 @@
+{
+  "name": "Concurrency: two button presses at the same moment",
+  "covers": [
+    "Extra: Concurrency"
+  ],
+  "input": "Hi, I'm looking for a 2-bed apartment in Jumeirah Lake Towers, up to 1.5M. (two POST /runs sent together)",
+  "status": "pass",
+  "checks": [
+    {
+      "ok": true,
+      "text": "statuses of the two presses is [201,409]"
+    },
+    {
+      "ok": true,
+      "text": "runs saved for the lead is 1"
+    }
+  ],
+  "durationMs": 9437,
+  "runs": [
+    {
+      "id": "ef2c2ad9-2bb6-45d7-a2a5-ec703220dc6f",
+      "leadId": "f80b7d80-d002-4801-b5d7-2174914a9242",
+      "messageId": "af63cf37-f1a8-41c0-a151-f51bf1c94483",
+      "messageIds": [
+        "af63cf37-f1a8-41c0-a151-f51bf1c94483"
+      ],
+      "trigger": "manual",
+      "status": "completed",
+      "requirements": {
+        "intent": "buy",
+        "bedrooms": 2,
+        "budgetAed": {
+          "max": 1500000,
+          "min": null
+        },
+        "locations": [
+          "Jumeirah Lake Towers"
+        ],
+        "preferences": [],
+        "propertyType": "apartment"
+      },
+      "recommendations": [],
+      "summary": "The lead wants to buy a 2-bed apartment in Jumeirah Lake Towers for up to AED 1,500,000. We have no listings that fit within that budget. When I searched without the price limit, the closest match was MBR-1013, a 2-bed lake-view apartment in Lake Terrace. It is 1,400 sqft and priced at AED 1,550,000, which is AED 50,000 over budget. It has a 7.74% gross yield and is available. I didn't recommend it because it's over budget, but it may be worth mentioning if the lead can stretch.",
+      "priceChecks": [],
+      "proposedActions": [
+        {
+          "id": "36b49554-39bb-4ccd-9dae-88e7fa0867b6",
+          "type": "create_follow_up_task",
+          "status": "pending_approval",
+          "task": {
+            "title": "Contact Eval Concurrent about 2-bed JLT apartments up to AED 1.5M",
+            "notes": "Nothing in JLT fits a 2-bed under AED 1.5M. The closest is MBR-1013 (Lake Terrace, 1,400 sqft, AED 1.55M, 7.74% gross yield). Ask whether the lead can stretch the budget or would look at other areas.",
+            "dueAt": null
+          },
+          "needsClarification": null,
+          "taskId": null
+        }
+      ],
+      "trace": [
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Jumeirah Lake Towers",
+            "type": "apartment",
+            "maxBedrooms": 2,
+            "maxPriceAed": 1500000,
+            "minBedrooms": 2
+          },
+          "output": {
+            "listings": [],
+            "returned": 0,
+            "totalMatching": 0
+          },
+          "durationMs": 11
+        },
+        {
+          "tool": "search_listings",
+          "input": {
+            "area": "Jumeirah Lake Towers",
+            "type": "apartment",
+            "maxBedrooms": 2,
+            "minBedrooms": 2
+          },
+          "output": {
+            "listings": [
+              {
+                "id": "33c69041-687f-59ae-8f1b-5542086ead51",
+                "area": "Jumeirah Lake Towers",
+                "type": "apartment",
+                "title": "2BR lake view in Lake Terrace",
+                "status": "available",
+                "bedrooms": 2,
+                "building": "Lake Terrace",
+                "listedAt": "2026-11-15T12:38:25.228Z",
+                "priceAed": 1550000,
+                "sizeSqft": 1400,
+                "warnings": [],
+                "bathrooms": 3,
+                "reference": "MBR-1013",
+                "annualRentAed": 120000,
+                "grossYieldPct": 7.74,
+                "recommendable": true,
+                "priceAedPerSqft": 1107,
+                "serviceChargeAedPerSqft": 14.5
+              }
+            ],
+            "returned": 1,
+            "totalMatching": 1
+          },
+          "durationMs": 8
+        }
+      ],
+      "costUsd": 0.0701,
+      "model": "claude-opus-5-5",
+      "toolPlanner": {
+        "name": "claude",
+        "costUsd": 0
+      },
+      "createdAt": "2026-11-26T12:41:08.836Z",
+      "finishedAt": "2026-11-26T12:41:18.176Z"
+    }
+  ],
+  "modelCalls": [
+    {
+      "caseName": "Concurrency: two button presses at the same moment",
+      "step": 1,
+      "model": "claude-opus-5-5",
+      "did": "called search_listings",
+      "inputTokens": 4225,
+      "outputTokens": 164,
+      "costUsd": 0.0202,
+      "durationMs": 2743
+    },
+    {
+      "caseName": "Concurrency: two button presses at the same moment",
+      "step": 2,
+      "model": "claude-opus-5-5",
+      "did": "called search_listings",
+      "inputTokens": 4417,
+      "outputTokens": 167,
+      "costUsd": 0.021,
+      "durationMs": 2038
+    },
+    {
+      "caseName": "Concurrency: two button presses at the same moment",
+      "step": 3,
+      "model": "claude-opus-5-5",
+      "did": "final answer",
+      "inputTokens": 4842,
+      "outputTokens": 478,
+      "costUsd": 0.0289,
+      "durationMs": 4494
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Part 8: an Arabic lead gets Khalid, never Layla (on leave)",
+  "covers": [
+    "Part 8: Agent pick"
+  ],
+  "input": "مرحبا، أبحث عن شقة بغرفتين في دبي مارينا بميزانية مليوني درهم (new WhatsApp number, no agent. Arabic speakers covering Dubai Marina: Khalid, and Layla who is on leave)",
+  "status": "skipped",
+  "skipReason": "Part 8 is not built yet.",
+  "checks": [],
+  "durationMs": 0,
+  "runs": [],
+  "modelCalls": []
+}

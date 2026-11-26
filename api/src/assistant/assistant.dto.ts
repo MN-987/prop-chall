@@ -1,12 +1,18 @@
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsIn, IsOptional, IsUUID } from 'class-validator';
 import { toTaskDto } from '../common/dto';
 import type { AssistantAction, AssistantRun } from '../entities';
+import { TOOL_PLANNERS, ToolPlannerName } from './planners/tool-planner';
 
 export class StartRunDto {
   /** Default: the lead's latest inbound message. */
   @IsOptional()
   @IsUUID()
   messageId?: string;
+
+  /** Who chooses the tools for this run. Default: `TOOL_PLANNER` in the environment, else "claude". */
+  @IsOptional()
+  @IsIn(TOOL_PLANNERS)
+  planner?: ToolPlannerName;
 }
 
 /** What a run reports when it understood nothing (failed runs, TASK.md). */
@@ -52,6 +58,8 @@ export function toRunDto(run: AssistantRun, actions: AssistantAction[]) {
     trace: run.trace,
     costUsd: Number(run.costUsd),
     model: run.model,
+    /** Which strategy chose the tools ("claude" or "jev") and what it decided. Extra field. */
+    toolPlanner: run.planner ?? null,
     createdAt: run.createdAt.toISOString(),
     finishedAt: run.finishedAt ? run.finishedAt.toISOString() : null,
   };

@@ -140,6 +140,9 @@ export interface TraceStep {
   durationMs: number;
 }
 
+/** Who chooses the tools for a run: Claude in its agent loop, or TypeSafe's Jev (Claude then writes the answer). */
+export type ToolPlannerName = 'claude' | 'jev';
+
 export interface AssistantRun {
   id: string;
   leadId: string;
@@ -157,6 +160,8 @@ export interface AssistantRun {
   createdAt: string;
   costUsd?: number;
   model?: string;
+  /** Which strategy chose the tools, and what it decided. */
+  toolPlanner?: { name: ToolPlannerName; decisions?: Record<string, unknown>; costUsd?: number } | null;
 }
 
 export type ApproveResult =
@@ -217,10 +222,11 @@ export const api = {
    * Starts the assistant on the lead's latest inbound message. With `?async=true` the API answers 202 with the run
    * still `running` (poll getRun for its trace and result); an API without it answers 201 with the finished run.
    */
-  startRun: (token: string, leadId: string) =>
+  /** `planner`: who chooses the tools ("claude" or "jev"); omitted, the API's default applies. */
+  startRun: (token: string, leadId: string, planner?: ToolPlannerName) =>
     request<AssistantRun>(`/leads/${leadId}/assistant/runs?async=true`, token, {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify(planner ? { planner } : {}),
     }),
   /** Newest first. */
   listRuns: (token: string, leadId: string) => request<AssistantRun[]>(`/leads/${leadId}/assistant/runs`, token),
