@@ -109,7 +109,9 @@ export interface AgentInput {
   /** The messages this run analyses as new. */
   newMessageIds: string[];
   timeZone: string;
-  tools: Omit<ToolContext, 'trace' | 'seen' | 'onToolError'>;
+  tools: Omit<ToolContext, 'trace' | 'seen' | 'onToolError' | 'onTrace'>;
+  /** Called after every tool call with the trace so far (for live progress). */
+  onTrace?: ToolContext['onTrace'];
   /** For tests: a stand-in model. Defaults to Anthropic's `modelId`. */
   model?: LanguageModel;
   /** Model id, for the call and for pricing. Defaults to ASSISTANT_MODEL or claude-opus-5-5. */
@@ -258,6 +260,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResult | AgentFa
     ...input.tools,
     trace,
     seen: new Map(),
+    onTrace: input.onTrace,
     onToolError: (toolName, error) => {
       toolFailure ??= `The ${toolName} tool failed: ${error.message}`;
       abort.abort();

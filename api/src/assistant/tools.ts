@@ -51,6 +51,17 @@ export interface ToolContext {
   seen: Map<string, CheckedListing>;
   /** Called when a tool fails, so the run can stop: a failed search must never read as "nothing found". */
   onToolError: (toolName: string, error: Error) => void;
+  /** Called after every tool call with the trace so far, so a running run can show its progress. */
+  onTrace?: (trace: TraceEntry[]) => Promise<void> | void;
+}
+
+/** Progress reporting must never break a run: a failed save is logged by the caller, not thrown here. */
+async function reportTrace(ctx: ToolContext): Promise<void> {
+  try {
+    await ctx.onTrace?.(ctx.trace);
+  } catch {
+    // The final trace is saved with the run's result anyway.
+  }
 }
 
 const LISTING_CODE = /^[A-Za-z]{2,6}-\d{1,8}$/;
@@ -72,10 +83,12 @@ function traced<I, O>(ctx: ToolContext, name: string, run: (input: I) => Promise
     try {
       const output = await run(input);
       ctx.trace.push({ tool: name, input, output: output ?? null, durationMs: Date.now() - started });
+      await reportTrace(ctx);
       return output;
     } catch (caught) {
       const error = caught instanceof Error ? caught : new Error(String(caught));
       ctx.trace.push({ tool: name, input, error: error.message, durationMs: Date.now() - started });
+      await reportTrace(ctx);
       ctx.onToolError(name, error);
       throw error;
     }

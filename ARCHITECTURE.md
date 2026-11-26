@@ -50,6 +50,7 @@ Web panel / mobile card show it; Approve creates the task once, Reject saves not
 | [api/src/entities/assistant-action.entity.ts](api/src/entities/assistant-action.entity.ts) | `assistant_actions`: one row per proposed action (type, status, payload, created task). Its status changes on its own row, so approving is one conditional update. |
 | [api/src/assistant/due-date.ts](api/src/assistant/due-date.ts) | Timing intent + message `sentAt` + agent timezone to `dueAt` (ISO with offset, 10:00 local by default) or `needsClarification`. Calendar arithmetic in UTC on plain dates, so the server's own timezone never matters. "After the weekend" is the next Monday (UAE weekend Saturday and Sunday); a named weekday is the next one after the message. |
 | [api/src/assistant/assistant.service.ts](api/src/assistant/assistant.service.ts), [assistant.controller.ts](api/src/assistant/assistant.controller.ts), [assistant.dto.ts](api/src/assistant/assistant.dto.ts) | The endpoints of TASK.md's contract. A run is inserted as `running` first (a unique-index violation is the `409`), then the agent runs, then the row becomes `completed` or `failed`. The conversation the agent reads stops at the analysed message. Approve runs `UPDATE ... WHERE status = 'pending_approval'` and creates the task in the same transaction; whoever loses the race, or repeats, gets the same task. The model is injected (`ASSISTANT_LANGUAGE_MODEL`) so tests use a scripted stand-in. |
+| Background runs (stretch 1, pulled forward) | `POST ...runs?async=true` answers 202 once the run row exists; the agent continues in a forked entity manager and saves the trace after every tool call (`onTrace` in tools.ts), so `GET` the run shows progress. At startup, `onApplicationBootstrap` ends any run still `running` as failed ("The API restarted before this run finished"). Without `async=true`, POST waits and answers 201 as the contract says. |
 | [web/src/components/AssistantPanel.tsx](web/src/components/AssistantPanel.tsx) | Loads the latest run, Analyze button, requirements, ranked listings with price and yield, summary, price checks, proposed actions with Approve and Reject, polling of a `running` run, plain messages for 409, 422, 429 and failed runs. Reloads tasks and lead after a decision. |
 | [mobile/src/components/AssistantPanel.tsx](mobile/src/components/AssistantPanel.tsx) | The same result in a compact card, with Refresh, Run analysis, Approve and Reject. |
 
@@ -79,6 +80,8 @@ Web panel / mobile card show it; Approve creates the task once, Reject saves not
 - Prompt caching: not enabled yet. The stable prefix (system prompt and tools) is below the size where caching pays off; revisit if the prompt grows.
 
 ## Known limits
+
+- The restart sweep assumes one API instance: a second instance starting would end the first one's running runs. Several instances would need a lease per run with an expiry, as qm's run store has.
 
 - A model call aborted by a tool failure does not report its token usage, so that run's cost is recorded as 0.
 - `bedrooms` is a single number, as in the API contract. "Studio or 1-bed" is kept as a preference, and the search uses a 0 to 1 range.

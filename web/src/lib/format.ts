@@ -37,3 +37,26 @@ export function formatVerdict(verdict: 'below_market' | 'fair' | 'above_market' 
     not_enough_data: 'Not enough data',
   }[verdict];
 }
+
+/** Short amounts for tight spaces: 2,200,000 is "2.2M", 2,050,000 is "2.05M", 900,000 is "900k". */
+export function formatAmountShort(amount: number): string {
+  if (Math.abs(amount) >= 1_000_000) return `${Number((amount / 1_000_000).toFixed(2))}M`;
+  if (Math.abs(amount) >= 1_000) return `${Number((amount / 1_000).toFixed(1))}k`;
+  return String(amount);
+}
+
+/** "AED 2.2M". */
+export function formatAedShort(amount: number): string {
+  return `AED ${formatAmountShort(amount)}`;
+}
+
+/** "Up to AED 2.2M", "AED 1M to 2M", "From AED 900k", or null when neither end is known. */
+export function formatBudgetShort(budget: { min: number | null; max: number | null }): string | null {
+  const { min, max } = budget;
+  if (min !== null && max !== null) {
+    return min === max ? formatAedShort(max) : `AED ${formatAmountShort(min)} to ${formatAmountShort(max)}`;
+  }
+  if (max !== null) return `Up to ${formatAedShort(max)}`;
+  if (min !== null) return `From ${formatAedShort(min)}`;
+  return null;
+}

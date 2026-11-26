@@ -213,9 +213,15 @@ export const api = {
   updateTask: (token: string, taskId: string, changes: Partial<Pick<Task, 'status'>>) =>
     request<Task>(`/tasks/${taskId}`, token, { method: 'PATCH', body: JSON.stringify(changes) }),
   getProperty: (token: string, propertyId: string) => request<Property>(`/properties/${propertyId}`, token),
-  /** Runs the assistant on the lead's latest inbound message. Synchronous: takes 10 to 20 seconds. */
+  /**
+   * Starts the assistant on the lead's latest inbound message. With `?async=true` the API answers 202 with the run
+   * still `running` (poll getRun for its trace and result); an API without it answers 201 with the finished run.
+   */
   startRun: (token: string, leadId: string) =>
-    request<AssistantRun>(`/leads/${leadId}/assistant/runs`, token, { method: 'POST', body: JSON.stringify({}) }),
+    request<AssistantRun>(`/leads/${leadId}/assistant/runs?async=true`, token, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
   /** Newest first. */
   listRuns: (token: string, leadId: string) => request<AssistantRun[]>(`/leads/${leadId}/assistant/runs`, token),
   getRun: (token: string, leadId: string, runId: string) =>
