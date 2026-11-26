@@ -78,6 +78,91 @@ export interface Page<T> {
   total: number;
 }
 
+export interface Requirements {
+  locations: string[];
+  /** 0 means studio. */
+  bedrooms: number | null;
+  budgetAed: { min: number | null; max: number | null };
+  propertyType: 'apartment' | 'villa' | 'townhouse' | 'penthouse' | null;
+  intent: 'buy' | 'rent' | 'unknown';
+  preferences: string[];
+}
+
+export interface Recommendation {
+  propertyId: string;
+  reason: string;
+  // Listing facts the API adds so the UI needs no extra calls.
+  reference?: string;
+  title?: string;
+  area?: string;
+  bedrooms?: number;
+  priceAed?: number;
+  annualRentAed?: number | null;
+  grossYieldPct?: number | null;
+  status?: Property['status'];
+}
+
+export interface PriceCheck {
+  propertyId: string;
+  reference?: string;
+  priceAedPerSqft: number;
+  medianAedPerSqft: number | null;
+  comparableSales: number;
+  verdict: 'below_market' | 'fair' | 'above_market' | 'not_enough_data';
+}
+
+export type ActionStatus = 'pending_approval' | 'approved' | 'rejected';
+
+export interface FollowUpAction {
+  id: string;
+  type: 'create_follow_up_task';
+  status: ActionStatus;
+  task: { title: string; notes: string | null; dueAt: string | null };
+  needsClarification: string | null;
+  taskId?: string | null;
+}
+
+export interface AgentSuggestionAction {
+  id: string;
+  type: 'assign_lead';
+  status: ActionStatus;
+  agent: { id: string; name: string };
+  reason: string;
+}
+
+export type ProposedAction = FollowUpAction | AgentSuggestionAction;
+
+export interface TraceStep {
+  tool: string;
+  input: unknown;
+  output?: unknown;
+  error?: string;
+  durationMs: number;
+}
+
+export interface AssistantRun {
+  id: string;
+  leadId: string;
+  messageId: string;
+  messageIds: string[];
+  trigger: 'manual' | 'whatsapp';
+  status: 'running' | 'completed' | 'failed';
+  error?: string;
+  requirements: Requirements;
+  recommendations: Recommendation[];
+  summary: string;
+  priceChecks: PriceCheck[];
+  proposedActions: ProposedAction[];
+  trace: TraceStep[];
+  createdAt: string;
+  costUsd?: number;
+  model?: string;
+}
+
+export type ApproveResult =
+  | { action: FollowUpAction; task: Task; warnings: string[] }
+  | { action: AgentSuggestionAction; lead: Lead };
+
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export class ApiError extends Error {
@@ -128,4 +213,19 @@ export const api = {
   updateTask: (token: string, taskId: string, changes: Partial<Pick<Task, 'status'>>) =>
     request<Task>(`/tasks/${taskId}`, token, { method: 'PATCH', body: JSON.stringify(changes) }),
   getProperty: (token: string, propertyId: string) => request<Property>(`/properties/${propertyId}`, token),
+  /** Runs the assistant on the lead's latest inbound message. Synchronous: takes 10 to 20 seconds. */
+  startRun: (token: string, leadId: string) =>
+    request<AssistantRun>(`/leads/${leadId}/assistant/runs`, token, { method: 'POST', body: JSON.stringify({}) }),
+  /** Newest first. */
+  listRuns: (token: string, leadId: string) => request<AssistantRun[]>(`/leads/${leadId}/assistant/runs`, token),
+  getRun: (token: string, leadId: string, runId: string) =>
+    request<AssistantRun>(`/leads/${leadId}/assistant/runs/${runId}`, token),
+  approveAction: (token: string, leadId: string, runId: string, actionId: string) =>
+    request<ApproveResult>(`/leads/${leadId}/assistant/runs/${runId}/actions/${actionId}/approve`, token, {
+      method: 'POST',
+    }),
+  rejectAction: (token: string, leadId: string, runId: string, actionId: string) =>
+    request<{ action: ProposedAction }>(`/leads/${leadId}/assistant/runs/${runId}/actions/${actionId}/reject`, token, {
+      method: 'POST',
+    }),
 };

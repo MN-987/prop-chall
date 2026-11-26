@@ -25,11 +25,24 @@ Working plan for the 4-hour task in [TASK.md](TASK.md). Each step is agreed befo
 
 ## Step 2: run storage and endpoints
 
-To be agreed.
+Agreed 15:20. Two ideas taken from qm's run store: proposed actions in their own table (status changes on its own row, so approve is one conditional update), and a partial unique index so a lead never has two `running` runs (needed by part 6).
+
+- [x] Entities + migration: `assistant_runs` (lead, agency, message ids, trigger, status, error, requirements, recommendations, summary, price checks, trace, usage, cost) and `assistant_actions` (run, type, status, payload, task id). Partial unique index `assistant_runs(lead_id) WHERE status = 'running'` (written by hand in the migration).
+- [x] `due-date.ts`: timing intent + message `sentAt` + timezone to `dueAt` (default 10:00 local) or `needsClarification`. UAE weekend Saturday and Sunday. 10 unit tests, passing under `TZ=UTC` and `TZ=America/Los_Angeles`.
+- [x] `AssistantModule`: `POST /leads/:leadId/assistant/runs` (sync, 201), `GET` list (newest first) and one, `approve`, `reject`. 404 for another agency, 404 unknown `messageId`, 400 malformed, 422 no inbound message.
+- [x] Approve: `UPDATE ... WHERE status = 'pending_approval'` in a transaction with the task insert; only the winner creates the task; a repeat returns the same task; approve after reject and reject after approve are 409.
+- [x] A failed run answers 201 with `status: "failed"`, `error` and empty fields.
+- [x] 6 e2e tests (`test/assistant.e2e-spec.ts`) with a scripted stand-in model (`MockLanguageModelV3`, no API cost). Also checked live with curl on Karim: 201 in 16 s, two approves at the same moment and a third gave one task.
+- Recommendations carry the listing facts the UI shows (reference, title, price, yield, status): extra fields, the contract allows them.
 
 ## Step 3: web panel, then mobile card
 
-To be agreed.
+Built in parallel by a second agent (web/ and mobile/ only), against the API contract in TASK.md.
+
+- [x] Web `AssistantPanel`: Analyze button (shows it takes about 15 s), latest run loaded on open, requirements, ranked listings with reasons and facts, summary, follow-up with due date in the agent's timezone, Approve and Reject; Tasks list reloads after Approve; clear messages for 409, 422, 429 and failed runs; polls a `running` run every 2 s.
+- [x] Mobile `AssistantPanel`: latest run for the lead, Refresh, Run analysis, Approve and Reject (bonus done).
+- [x] Component tests: web 4 new (8 total), mobile 1 new (3 total). Reviewed the web panel's effects and error paths by hand.
+- [ ] Clicked through in the browser by the developer.
 
 ## Step 4: evals
 

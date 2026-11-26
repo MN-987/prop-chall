@@ -33,6 +33,14 @@ export default function LeadScreen() {
       .catch(handleError);
   }, [session, id, handleError]);
 
+  /** After an assistant action is approved: the new task shows in the list, and an assignment shows on the lead. */
+  const refreshAfterApproval = useCallback(() => {
+    if (!session) return;
+    Promise.all([api.listTasks(session.token, id).then(setTasks), api.getLead(session.token, id).then(setLead)]).catch(
+      handleError,
+    );
+  }, [session, id, handleError]);
+
   async function toggleTask(task: Task) {
     if (!session) return;
     try {
@@ -60,7 +68,13 @@ export default function LeadScreen() {
           <Text style={styles.meta}>{[lead.phone, lead.email, `via ${lead.source}`].filter(Boolean).join(' · ')}</Text>
           {lead.notes && <Text style={styles.meta}>{lead.notes}</Text>}
 
-          <AssistantPanel lead={lead} />
+          <AssistantPanel
+            lead={lead}
+            token={session.token}
+            timeZone={timeZone}
+            onChanged={refreshAfterApproval}
+            onUnauthorized={logout}
+          />
 
           <Text style={styles.section}>Conversation</Text>
           <MessageThread messages={lead.messages} timeZone={timeZone} />

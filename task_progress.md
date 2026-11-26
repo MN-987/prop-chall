@@ -4,7 +4,7 @@ Every task from [TASK.md](TASK.md), in the order it must be built, with what is 
 
 **Legend:** `[x]` done and tested · `[~]` started, not finished · `[ ]` not started · `[-]` skipped on purpose (say why in NOTES.md)
 
-**Now working on:** Step 1 done and checked, waiting for the OK to commit. Next: design of step 2 (run storage, endpoints, due dates)
+**Now working on:** Steps 2 and 3 built and tested, waiting for the developer to click through the web panel, then commit. Next: design of step 4 (evals)
 **Time box:** started 13:45, ends 17:45 (Asia/Dubai, 2026-11-26). Last 20 minutes are for the wrap-up (section F).
 
 ---
@@ -37,25 +37,25 @@ Every task from [TASK.md](TASK.md), in the order it must be built, with what is 
 **Part 4. Proposes an action (nothing saved until approved)**
 
 - [x] Model returns the timing intent only ("tomorrow", "after_weekend", "unclear", ...)
-- [ ] Code computes `dueAt` in the agent's timezone from the message's `sentAt`, with unit tests (incl. `TZ=UTC`)
-- [ ] Unclear timing gives `dueAt: null` and a `needsClarification` reason
-- [ ] Run storage: entity + migration (requirements, recommendations, summary, actions, trace, cost)
-- [ ] `POST /leads/:leadId/assistant/runs` (optional `messageId`, default latest inbound)
-- [ ] `GET /leads/:leadId/assistant/runs` (newest first)
-- [ ] `GET /leads/:leadId/assistant/runs/:runId`
-- [ ] `POST .../actions/:actionId/approve` creates the task, returns `{ action, task, warnings }`
-- [ ] `POST .../actions/:actionId/reject` saves nothing, returns `{ action }`
-- [ ] Error codes: other agency `404`, unknown `messageId` `404`, no inbound message `422`
-- [ ] Approve twice gives the same task (one task); reject twice `200`; approve after reject or reject after approve `409`
-- [ ] Failed run answers `201` with `status: "failed"`, `error`, and all fields empty
-- [ ] e2e tests for the endpoints and error codes
+- [x] Code computes `dueAt` in the agent's timezone from the message's `sentAt`, with unit tests (incl. `TZ=UTC`) (`due-date.ts`, 10 tests, also under `TZ=America/Los_Angeles`)
+- [x] Unclear timing gives `dueAt: null` and a `needsClarification` reason
+- [x] Run storage: entity + migration (requirements, recommendations, summary, actions, trace, cost)
+- [x] `POST /leads/:leadId/assistant/runs` (optional `messageId`, default latest inbound)
+- [x] `GET /leads/:leadId/assistant/runs` (newest first)
+- [x] `GET /leads/:leadId/assistant/runs/:runId`
+- [x] `POST .../actions/:actionId/approve` creates the task, returns `{ action, task, warnings }`
+- [x] `POST .../actions/:actionId/reject` saves nothing, returns `{ action }`
+- [x] Error codes: other agency `404`, unknown `messageId` `404`, no inbound message `422`
+- [x] Approve twice gives the same task (one task); reject twice `200`; approve after reject or reject after approve `409`
+- [x] Failed run answers `201` with `status: "failed"`, `error`, and all fields empty
+- [x] e2e tests for the endpoints and error codes (`test/assistant.e2e-spec.ts`, 6 tests, stand-in model; also checked live with curl, incl. two approves at the same moment)
 
 **Part 5. Web and mobile**
 
-- [ ] Web panel (`web/src/app/leads/[id]/page.tsx`): start a run, show requirements, recommendations, summary
-- [ ] Web panel: proposed follow-up with Approve and Reject; approved task shows in the Tasks list
-- [ ] Mobile card (`mobile/src/app/leads/[id].tsx`): shows the latest run for the lead
-- [ ] Mobile Approve and Reject (bonus)
+- [~] Web panel (`web/src/app/leads/[id]/page.tsx`): start a run, show requirements, recommendations, summary (built by a parallel agent, component tests pass, reviewed; browser click-through pending)
+- [~] Web panel: proposed follow-up with Approve and Reject; approved task shows in the Tasks list (component tests pass; browser click-through pending)
+- [~] Mobile card (`mobile/src/app/leads/[id].tsx`): shows the latest run for the lead (component test passes; not opened on a device yet)
+- [~] Mobile Approve and Reject (bonus) (built, component test passes; not opened on a device yet)
 
 ### B. Rules the assistant must follow (each needs an eval or a test)
 
@@ -63,8 +63,8 @@ Every task from [TASK.md](TASK.md), in the order it must be built, with what is 
 - [~] Only the agent's own agency (tools close over `agencyId`; e2e test pending)
 - [~] Only real, available listings; nothing fits means nothing recommended (code re-check done; eval pending)
 
-- [ ] No side effects without approval (running creates no task, changes no lead, message or property)
-- [ ] Dates in the agent's timezone, UAE weekend is Saturday and Sunday
+- [~] No side effects without approval (running creates no task, changes no lead, message or property) (e2e checks no task is created; lead, message and property checks go in the eval)
+- [x] Dates in the agent's timezone, UAE weekend is Saturday and Sunday (`due-date.spec.ts`)
 
 - [~] Failures are reported as failed, not "nothing found" (code done; eval pending)
 
@@ -185,3 +185,4 @@ Newest last. One line per finished step or commit.
 - 14:37 Starter project committed (`first commit`).
 - 14:55 Step 1 code written (listing-quality, tools, agent); typecheck and unit tests pass; not committed yet.
 - 15:01 Step 1 checked with the real model on Karim, Alex (injection ignored and reported) and Hala (Arabic, code lookup): 10 to 18 s, USD 0.06 to 0.07 per run. Prompt fix for invented preferences. Added ARCHITECTURE.md; merged CLAUDE.md. Not committed yet.
+- 15:21 Step 2 built: assistant_runs and assistant_actions tables (one running run per lead enforced by a partial unique index), due dates, the 5 endpoints. 6 e2e tests with a stand-in model; live curl check on Karim. Step 3 built in parallel by a second agent (web panel, mobile card with Approve and Reject), component tests pass. All suites green: API unit 20, API e2e 27, web 8, mobile 3, both typechecks. Not committed yet.

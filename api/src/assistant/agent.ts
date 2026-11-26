@@ -116,10 +116,18 @@ export interface AgentInput {
   modelId?: string;
 }
 
+/** A recommendation that passed the code check, with the listing facts the UI shows next to the reason. */
 export interface CheckedRecommendation {
   propertyId: string;
-  reference: string;
   reason: string;
+  reference: string;
+  title: string;
+  area: string;
+  bedrooms: number;
+  priceAed: number;
+  annualRentAed: number | null;
+  grossYieldPct: number | null;
+  status: string;
 }
 
 export interface AgentResult {
@@ -222,7 +230,20 @@ async function checkRecommendations(ctx: ToolContext, answer: ModelAnswer) {
       rejected.push({ propertyId: rec.propertyId, why });
       continue;
     }
-    if (kept.length < MAX_RECOMMENDATIONS) kept.push({ propertyId: seen.id, reference: seen.reference, reason: rec.reason });
+    if (kept.length < MAX_RECOMMENDATIONS) {
+      kept.push({
+        propertyId: seen.id,
+        reason: rec.reason,
+        reference: seen.reference,
+        title: seen.title,
+        area: seen.area,
+        bedrooms: seen.bedrooms,
+        priceAed: seen.priceAed,
+        annualRentAed: seen.annualRentAed,
+        grossYieldPct: seen.grossYieldPct,
+        status: fresh.status,
+      });
+    }
   }
   return { kept, rejected };
 }

@@ -32,6 +32,12 @@ export default function LeadPage() {
     setTasks(await api.listTasks(session.token, id));
   }, [session, id]);
 
+  /** After an assistant action is approved: the new task shows in the list, and an assignment shows on the lead. */
+  const refreshAfterApproval = useCallback(() => {
+    if (!session) return;
+    Promise.all([loadTasks(), api.getLead(session.token, id).then(setLead)]).catch(handleError);
+  }, [session, id, loadTasks, handleError]);
+
   useEffect(() => {
     if (!session) return;
     Promise.all([api.getLead(session.token, id), api.listTasks(session.token, id)])
@@ -81,7 +87,13 @@ export default function LeadPage() {
                 <MessageThread messages={lead.messages} timeZone={timeZone} />
               </section>
               <div className="space-y-6">
-                <AssistantPanel lead={lead} />
+                <AssistantPanel
+                  lead={lead}
+                  token={session.token}
+                  timeZone={timeZone}
+                  onChanged={refreshAfterApproval}
+                  onUnauthorized={logout}
+                />
                 <section className="rounded-xl bg-white p-4 ring-1 ring-gray-200">
                   <h2 className="mb-3 font-semibold">Tasks</h2>
                   <TaskList tasks={tasks.items} total={tasks.total} timeZone={timeZone} onToggle={toggleTask} />

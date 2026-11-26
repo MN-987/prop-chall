@@ -10,7 +10,7 @@ Status legend: **Built** (in the code and tested), **Planned** (agreed direction
 Sara clicks "Analyze"  (later also: a WhatsApp burst goes quiet for 5 s)
         │
         ▼
-API: load lead + messages, scoped to Sara's agency (404 otherwise)          Planned (step 2)
+API: load lead + messages, scoped to Sara's agency (404 otherwise)          Built
         │
         ▼
 Agent loop (Claude via Vercel AI SDK, at most 8 steps)                       Built
@@ -27,13 +27,13 @@ Code checks every recommendation (seen in this run, same agency,              Bu
 available now, no blocking data warning, fits the extracted requirements)
         │
         ▼
-Code computes the due date from the timing intent, in the agent's timezone    Planned (step 2)
+Code computes the due date from the timing intent, in the agent's timezone    Built
         │
         ▼
-Save the run (assistant_runs); nothing else is written                        Planned (step 2)
+Save the run (assistant_runs, assistant_actions); nothing else is written     Built
         │
         ▼
-Web panel / mobile card show it; Approve creates the task once, Reject saves nothing   Planned (steps 2 and 3)
+Web panel / mobile card show it; Approve creates the task once, Reject saves nothing   Built
 ```
 
 ## Components
@@ -46,16 +46,17 @@ Web panel / mobile card show it; Approve creates the task once, Reject saves not
 | [api/src/assistant/tools.ts](api/src/assistant/tools.ts) | The two read-only tools and the trace. `search_listings`: optional area (an enum of the agency's real areas, loaded at run start), type, bedroom and price ranges; agency id and `status: available` are fixed in code. `get_listing`: by id or listing code, any status, description wrapped in `<listing_description>` as untrusted. A tool error is recorded and aborts the run. |
 | [api/src/assistant/agent.ts](api/src/assistant/agent.ts) | System prompt, conversation formatting (`<lead_message>` tags, `<`/`>` neutralised, newest messages marked `new="true"`), the `generateText` call, the output schema, the recommendation check (`whyNotRecommendable`), and cost from token usage. Returns `ok: true` with the answer or `ok: false` with an error, never a silent empty result. |
 | [api/src/assistant/smoke.ts](api/src/assistant/smoke.ts) | Runs the agent on one seeded lead against the real model and prints the result and trace. Developer tool, not part of the API. |
+| [api/src/entities/assistant-run.entity.ts](api/src/entities/assistant-run.entity.ts) | `assistant_runs`: one row per run (lead, agency, analysed message and message ids, trigger, status, error, requirements, recommendations, summary, price checks, trace, usage, cost, model). JSON columns for what is read and written whole. A partial unique index `(lead_id) WHERE status = 'running'` lets the database refuse a second running run for a lead, even when two start at once (idea taken from qm's run store). |
+| [api/src/entities/assistant-action.entity.ts](api/src/entities/assistant-action.entity.ts) | `assistant_actions`: one row per proposed action (type, status, payload, created task). Its status changes on its own row, so approving is one conditional update. |
+| [api/src/assistant/due-date.ts](api/src/assistant/due-date.ts) | Timing intent + message `sentAt` + agent timezone to `dueAt` (ISO with offset, 10:00 local by default) or `needsClarification`. Calendar arithmetic in UTC on plain dates, so the server's own timezone never matters. "After the weekend" is the next Monday (UAE weekend Saturday and Sunday); a named weekday is the next one after the message. |
+| [api/src/assistant/assistant.service.ts](api/src/assistant/assistant.service.ts), [assistant.controller.ts](api/src/assistant/assistant.controller.ts), [assistant.dto.ts](api/src/assistant/assistant.dto.ts) | The endpoints of TASK.md's contract. A run is inserted as `running` first (a unique-index violation is the `409`), then the agent runs, then the row becomes `completed` or `failed`. The conversation the agent reads stops at the analysed message. Approve runs `UPDATE ... WHERE status = 'pending_approval'` and creates the task in the same transaction; whoever loses the race, or repeats, gets the same task. The model is injected (`ASSISTANT_LANGUAGE_MODEL`) so tests use a scripted stand-in. |
+| [web/src/components/AssistantPanel.tsx](web/src/components/AssistantPanel.tsx) | Loads the latest run, Analyze button, requirements, ranked listings with price and yield, summary, price checks, proposed actions with Approve and Reject, polling of a `running` run, plain messages for 409, 422, 429 and failed runs. Reloads tasks and lead after a decision. |
+| [mobile/src/components/AssistantPanel.tsx](mobile/src/components/AssistantPanel.tsx) | The same result in a compact card, with Refresh, Run analysis, Approve and Reject. |
 
 ### Planned
 
 | Step | Component | Direction |
 | --- | --- | --- |
-| 2 | `assistant_runs` table + migration | One row per run: status, trigger, analysed message ids, requirements, recommendations, summary, price checks, proposed actions (with their status and the created task id), trace, usage and cost, error. JSON columns for what is read and written whole. |
-| 2 | Due-date logic | Pure function from the timing intent (`tomorrow`, `weekday`, `after_weekend`, ...) and the message's `sentAt` to `dueAt` in the agent's timezone, with `needsClarification` when it cannot be pinned down. UAE weekend is Saturday and Sunday. |
-| 2 | `AssistantModule` (controller + service) | The endpoints in TASK.md's API contract. Approve is idempotent (stores the task id on the action); approve after reject and reject after approve are `409`. |
-| 3 | Web `AssistantPanel` | Analyze button, what was understood, ranked listings with reasons, the proposed follow-up with Approve and Reject; the task list reloads after Approve. |
-| 3 | Mobile `AssistantPanel` | Shows the latest run for the lead (read-only first). |
 | 4 | Eval suite (`pnpm -C api eval`) | At least 8 cases with plain assertions on facts and side effects, trace saved per case, pass/fail report. |
 | 6 | WhatsApp auto-runs | Debounce of 5 s per lead after the last webhook message; dedupe by provider `messageId`; one run per lead at a time (`409`); the run is listed as `running` from its start. Design to be agreed. |
 | 7 | Price check | Plain code over recorded sales (same area, type, bedrooms, last 365 days before the message), median AED per sqft, bad sales filtered. Design to be agreed. |

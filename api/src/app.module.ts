@@ -3,6 +3,7 @@ import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { AgencyModule } from './agency/agency.module';
+import { AssistantModule } from './assistant/assistant.module';
 import { AuthGuard } from './auth/auth.guard';
 import { AuthModule } from './auth/auth.module';
 import { config } from './config';
@@ -23,6 +24,7 @@ import { WhatsAppModule } from './whatsapp/whatsapp.module';
     }),
     AuthModule,
     AgencyModule,
+    AssistantModule,
     LeadsModule,
     MarketModule,
     PropertiesModule,

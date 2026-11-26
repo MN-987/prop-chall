@@ -3,12 +3,12 @@ import { defineConfig } from '@mikro-orm/postgresql';
 import { Migrator } from '@mikro-orm/migrations';
 import { join } from 'node:path';
 import { config } from './config';
-import { Agency, Agent, Lead, Message, Property, Sale, Task } from './entities';
+import { Agency, Agent, AssistantAction, AssistantRun, Lead, Message, Property, Sale, Task } from './entities';
 
 export function buildOrmConfig() {
   return defineConfig({
     clientUrl: config.databaseUrl(),
-    entities: [Agency, Agent, Lead, Message, Property, Sale, Task],
+    entities: [Agency, Agent, Lead, Message, Property, Sale, Task, AssistantRun, AssistantAction],
     extensions: [Migrator],
     migrations: {
       path: join(__dirname, 'migrations'),
