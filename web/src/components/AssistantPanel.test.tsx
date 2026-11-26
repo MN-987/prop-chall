@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { api, ApiError, AssistantRun, LeadDetail } from '@/lib/api';
 import { AssistantPanel } from './AssistantPanel';
 
@@ -93,18 +93,80 @@ function renderPanel(onChanged = vi.fn()) {
 describe('AssistantPanel', () => {
   beforeEach(() => vi.resetAllMocks());
 
-  it('shows the latest run: what was understood, the ranked listings and the follow-up due date', async () => {
+  it('shows the latest run as cards: what was understood, the ranked listings and the follow-up due date', async () => {
     mocked.listRuns.mockResolvedValue([run]);
     renderPanel();
 
     expect(await screen.findByText('Karim wants a 2-bed in Dubai Marina to buy, with a good yield.')).toBeInTheDocument();
-    expect(screen.getByText(/1\. MBR-1001/)).toBeInTheDocument();
-    expect(screen.getByText(/2\. MBR-1007/)).toBeInTheDocument();
-    expect(screen.getByText('AED 1,950,000 · 7.32% gross yield')).toBeInTheDocument();
-    expect(screen.getByText('up to AED 2,000,000')).toBeInTheDocument();
+    expect(screen.getByText('What Karim wants')).toBeInTheDocument();
+    expect(screen.getByText('Up to AED 2M')).toBeInTheDocument();
+    expect(screen.getByText('2 bed')).toBeInTheDocument();
+    expect(screen.getByText('To buy')).toBeInTheDocument();
+
+    const cards = screen.getAllByRole('listitem').filter((item) => item.querySelector('[aria-label^="Rank"]'));
+    expect(cards).toHaveLength(2);
+    expect(within(cards[0]).getByText('MBR-1001')).toBeInTheDocument();
+    expect(within(cards[0]).getByText('AED 1.95M')).toBeInTheDocument();
+    expect(within(cards[0]).getByText('7.32% gross yield')).toBeInTheDocument();
+    expect(within(cards[1]).getByText('MBR-1007')).toBeInTheDocument();
+    expect(within(cards[1]).getByText('Yield unknown')).toBeInTheDocument();
+
     // 06:00 UTC is 10:00 in Dubai.
     expect(screen.getByText('Due 16 Oct, 10:00')).toBeInTheDocument();
+    expect(screen.getByText('Waiting for approval')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Analyze again' })).toBeEnabled();
     expect(mocked.listRuns).toHaveBeenCalledWith('tok', 'lead-1');
+  });
+
+  it('shows live steps while the agent works', async () => {
+    const live: AssistantRun = {
+      ...run,
+      status: 'running',
+      summary: '',
+      recommendations: [],
+      proposedActions: [],
+      createdAt: new Date().toISOString(),
+      trace: [
+        {
+          tool: 'search_listings',
+          input: { area: 'Dubai Marina', minBedrooms: 2, maxBedrooms: 2, maxPriceAed: 2200000 },
+          output: { totalMatching: 7, returned: 7, listings: [] },
+          durationMs: 40,
+        },
+        {
+          tool: 'get_listing',
+          input: { listing: 'MBR-1099' },
+          output: { found: false, listing: 'MBR-1099' },
+          durationMs: 10,
+        },
+      ],
+    };
+    mocked.listRuns.mockResolvedValue([live]);
+    mocked.getRun.mockResolvedValue(live);
+    renderPanel();
+
+    expect(await screen.findByText('Searched Dubai Marina, 2 bed, up to AED 2.2M: 7 found')).toBeInTheDocument();
+    expect(screen.getByText('Read the conversation')).toBeInTheDocument();
+    expect(screen.getByText('Looked up MBR-1099: not found')).toBeInTheDocument();
+    expect(screen.getByText('Checking the picks against the data and drafting the follow-up')).toBeInTheDocument();
+    expect(screen.getByText(/^\d+ s$/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Analyze again' })).toBeDisabled();
+  });
+
+  it('starts a run in the background and polls it until it is done', async () => {
+    mocked.listRuns.mockResolvedValue([]);
+    mocked.startRun.mockResolvedValue({ ...run, status: 'running', trace: [], proposedActions: [] });
+    mocked.getRun.mockResolvedValue(run);
+    renderPanel();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Analyze latest message' }));
+
+    expect(await screen.findByText('Checking the picks against the data and drafting the follow-up')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Karim wants a 2-bed in Dubai Marina to buy, with a good yield.', {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(mocked.getRun).toHaveBeenCalledWith('tok', 'lead-1', 'run-1');
+    expect(screen.queryByText('Checking the picks against the data and drafting the follow-up')).not.toBeInTheDocument();
   });
 
   it('approves a follow-up, updates it in place, shows warnings and tells the page', async () => {
@@ -150,6 +212,8 @@ describe('AssistantPanel', () => {
     ]);
     renderPanel();
 
-    expect(await screen.findByText('The assistant failed: Model timed out')).toBeInTheDocument();
+    expect(await screen.findByText('The assistant failed')).toBeInTheDocument();
+    expect(screen.getByText('Model timed out')).toBeInTheDocument();
+    expect(screen.queryByText('Recommended listings')).not.toBeInTheDocument();
   });
 });

@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "jest",
     "test:e2e": "jest --config test/jest-e2e.json --runInBand",
+    "eval": "TZ=UTC jest --config evals/jest-evals.json --runInBand",
     "check": "pnpm typecheck && pnpm test && pnpm test:e2e",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed-cli.ts",

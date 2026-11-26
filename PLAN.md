@@ -44,9 +44,29 @@ Built in parallel by a second agent (web/ and mobile/ only), against the API con
 - [x] Component tests: web 4 new (8 total), mobile 1 new (3 total). Reviewed the web panel's effects and error paths by hand.
 - [ ] Clicked through in the browser by the developer.
 
+## Step 3b: live progress and a card UI
+
+Agreed 15:30 after the developer's first click-through: the panel showed only "Analyzing..." for 15 s, and the result read as a wall of text. This is stretch item 1 (background runs) pulled forward, because part 6 needs the same background-run machinery.
+
+- [x] API: `POST /leads/:leadId/assistant/runs?async=true` answers 202 with the run in `status: "running"`; without `async=true` nothing changes. The run row is created in the request (so 404, 422 and 409 stay immediate), the agent then runs in its own forked entity manager.
+- [x] API: the run's `trace` is saved after every tool call (`onTrace`), so `GET` the run shows the tool calls so far. Live check: 202 at 0 s, `search_listings` visible at 3 s, completed at 16 s.
+- [x] API: at startup (`onApplicationBootstrap`), runs left `running` by a restart or crash end `failed` with "The API restarted before this run finished." Assumes one API instance.
+- [x] e2e tests: 202 then completed with its trace; 409 for a second run while one runs; the restart sweep. 8 assistant e2e tests, 29 e2e in total, all green.
+- [x] Web (second agent): Analyze uses `async=true`, polls every second, shows live steps from the trace (`AssistantSteps.tsx`); result in cards (what the lead wants as tags, one card per listing with rank, price, yield badge and reason, summary card, follow-up card with due date and Approve/Reject, collapsible "How it decided"). 10 web tests and typecheck green; step labels checked against the API's trace fields.
+- [ ] Developer click-through of the new panel.
+
 ## Step 4: evals
 
-To be agreed.
+Agreed 15:50. Built by a second agent in `api/evals/` only, in parallel with step 3b.
+
+Design: `pnpm -C api eval` runs Jest (ts-jest keeps Nest's decorator metadata) with `TZ=UTC`, like the graders. Global setup resets `challenge_test`, never the dev database. The real Nest app runs in-process with the **real model**, and every case goes through the real endpoints as Sara (or Omar), so it covers controller, service, agent, tools and Postgres. Cases run one at a time. Checks are plain assertions on facts (listings, fields, dates, counts, trace), never on wording, so verdicts repeat. A tool failure is faked in the eval only (`jest.spyOn` on `PropertiesService.prototype.search`). Every run also gets an API contract check. Output: pass/fail table, `api/evals/results/report.md`, one trace file per case in `api/evals/results/traces/`.
+
+- [ ] `api/evals/harness.ts`: app boot, login, start run, DB snapshots, check collector, report writer
+- [ ] `api/evals/assistant.eval.ts`: 15 cases (requirements x3, matching, no fit x2, dates x3, injection in message and in listing, tool failure, right tool, no action without approval, other agency)
+- [ ] `api/evals/jest-evals.json` and `eval` script in `api/package.json`
+- [ ] Full run, then a second run with the same verdicts
+- [ ] One case per part 6 to 10, added as each part is built
+- Found by the evals and fixed: run 1 (16:19) was 17/18. On "tomorrow" sent at 01:30 on a Saturday (Dubai), the model marked the timing unclear ("Saturday or Sunday?"), so `dueAt` was null and the case expected Sunday. Not a timezone bug: the date code was never reached. Fix: one prompt rule in `agent.ts`, "tomorrow" is always the calendar day after the message's date, even after midnight or on a weekend, and is never unclear. Run 2 (16:26): 18/18, USD 0.92, 155 s. The Jev branch needs the same line before its eval runs.
 
 ## Step 5 onward: parts 6 to 10
 

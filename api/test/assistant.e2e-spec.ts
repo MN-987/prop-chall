@@ -5,7 +5,7 @@ import { MockLanguageModelV3 } from 'ai/test';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
-import { ASSISTANT_LANGUAGE_MODEL } from '../src/assistant/assistant.service';
+import { ASSISTANT_LANGUAGE_MODEL, AssistantService } from '../src/assistant/assistant.service';
 import { stableId } from '../src/db/stable-id';
 import { AssistantRun, Lead, Message, Property, Task } from '../src/entities';
 
@@ -213,6 +213,52 @@ describe('AI assistant endpoints (against the test database, stand-in model)', (
       running.status = 'failed';
       await fork.flush();
     }
+  });
+
+  it('with ?async=true answers 202 at once, then the run finishes in the background with its trace', async () => {
+    const sara = await auth('sara@marinabay.test');
+    script = [
+      toolCall('search_listings', { area: 'Dubai Marina', minBedrooms: 2, maxBedrooms: 2 }),
+      finalAnswer(karimAnswer([await idOf('MBR-1001')])),
+    ];
+
+    const { body: started } = await http().post(`/leads/${KARIM}/assistant/runs?async=true`).set(sara).send({}).expect(202);
+    expect(started.status).toBe('running');
+    // While it runs, a second start is refused.
+    await http().post(`/leads/${KARIM}/assistant/runs`).set(sara).send({}).expect(409);
+
+    let run = started;
+    for (let i = 0; i < 50 && run.status === 'running'; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      run = (await http().get(`/leads/${KARIM}/assistant/runs/${started.id}`).set(sara).expect(200)).body;
+    }
+    expect(run.status).toBe('completed');
+    expect(run.trace.map((t: { tool: string }) => t.tool)).toEqual(['search_listings']);
+    expect(run.recommendations.map((r: { reference: string }) => r.reference)).toEqual(['MBR-1001']);
+  });
+
+  it('at startup, ends runs a restart left running as failed, with the reason', async () => {
+    const fork = em.fork();
+    const lead = await fork.findOneOrFail(Lead, KARIM, { populate: ['agency'] });
+    const message = await fork.findOneOrFail(Message, { lead, direction: 'inbound' });
+    const orphan = fork.create(AssistantRun, {
+      agency: lead.agency,
+      lead,
+      message,
+      messageIds: [message.id],
+      trigger: 'manual',
+      status: 'running',
+      requirements: {},
+      recommendations: [],
+      model: 'test',
+    });
+    await fork.flush();
+
+    await app.get(AssistantService).onApplicationBootstrap();
+
+    const after = await em.fork().findOneOrFail(AssistantRun, orphan.id);
+    expect(after.status).toBe('failed');
+    expect(after.error).toContain('restarted');
   });
 
   it("answers 404 for another agency's lead, run and action, and 422 for a lead that never wrote", async () => {

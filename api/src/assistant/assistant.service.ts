@@ -4,7 +4,9 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
+  OnApplicationBootstrap,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import type { LanguageModel } from 'ai';
@@ -28,11 +30,12 @@ interface RunRequest {
   message: Message;
   newMessages: Message[];
   trigger: AssistantRunTrigger;
-  timeZone: string;
 }
 
 @Injectable()
-export class AssistantService {
+export class AssistantService implements OnApplicationBootstrap {
+  private readonly logger = new Logger(AssistantService.name);
+
   constructor(
     private readonly em: EntityManager,
     private readonly leads: LeadsService,
@@ -40,13 +43,34 @@ export class AssistantService {
     @Inject(ASSISTANT_LANGUAGE_MODEL) private readonly model: LanguageModel | null,
   ) {}
 
-  /** Sara's button: analyse one message (by default the latest inbound one), and wait for the result. */
-  async startManualRun(agent: AuthAgent, leadId: string, dto: StartRunDto) {
+  /**
+   * At startup, a run still marked `running` was cut off by a restart or a crash: nothing will finish it, so it ends
+   * `failed` with the reason. (One API instance; with several, this would need a lease per run, as qm's reaper has.)
+   */
+  async onApplicationBootstrap() {
+    const ended = await this.em.fork().nativeUpdate(
+      AssistantRun,
+      { status: 'running' },
+      { status: 'failed', error: 'The API restarted before this run finished.', finishedAt: new Date() },
+    );
+    if (ended) this.logger.warn(`Marked ${ended} interrupted assistant run(s) as failed.`);
+  }
+
+  /**
+   * Sara's button: analyse one message (by default the latest inbound one). By default it waits for the result;
+   * with `background` it answers as soon as the run exists, and the run's trace fills in as the agent works.
+   */
+  async startManualRun(agent: AuthAgent, leadId: string, dto: StartRunDto, background = false) {
     const lead = await this.leads.findLead(agent.agencyId, leadId);
     const message = await this.pickMessage(lead, dto.messageId);
     const me = await this.em.findOneOrFail(Agent, { id: agent.id, agency: agent.agencyId });
-    const run = await this.execute({ lead, message, newMessages: [message], trigger: 'manual', timeZone: me.timezone });
-    return this.runDto(run);
+    const run = await this.createRun({ lead, message, newMessages: [message], trigger: 'manual' });
+    if (background) {
+      void this.completeRun(run.id, me.timezone).catch((error) => this.logger.error(`Run ${run.id} crashed`, error));
+      return this.runDto(run);
+    }
+    await this.completeRun(run.id, me.timezone);
+    return this.runDto(await this.em.findOneOrFail(AssistantRun, run.id, { refresh: true, populate: ['message'] }));
   }
 
   async listRuns(agencyId: string, leadId: string) {
@@ -121,8 +145,8 @@ export class AssistantService {
     return { action: toActionDto(fresh), task: toTaskDto(fresh.task), warnings: [] as string[] };
   }
 
-  /** Runs the agent and records the result. A run that fails is saved as `failed`, never as "nothing found". */
-  private async execute(request: RunRequest): Promise<AssistantRun> {
+  /** Inserts the run as `running`. The partial unique index turns a second running run for the lead into a 409. */
+  private async createRun(request: RunRequest): Promise<AssistantRun> {
     const { lead, message } = request;
     const run = this.em.create(AssistantRun, {
       agency: lead.agency,
@@ -144,10 +168,20 @@ export class AssistantService {
       }
       throw error;
     }
+    return run;
+  }
 
+  /**
+   * Runs the agent for a `running` run and records the result, in its own entity manager so it can outlive the
+   * request. A run that fails is saved as `failed`, never as "nothing found".
+   */
+  private async completeRun(runId: string, timeZone: string): Promise<void> {
+    const em = this.em.fork();
+    const run = await em.findOneOrFail(AssistantRun, runId, { populate: ['lead', 'agency', 'message'] });
+    const { lead, message } = run;
     try {
       // Only what had been said by the analysed message: a run on an older message does not read later ones.
-      const conversation = await this.em.find(
+      const conversation = await em.find(
         Message,
         { lead, sentAt: { $lte: message.sentAt } },
         { orderBy: { sentAt: 'asc', id: 'asc' } },
@@ -155,14 +189,18 @@ export class AssistantService {
       const result = await runAgent({
         leadName: lead.name,
         messages: conversation,
-        newMessageIds: request.newMessages.map((m) => m.id),
-        timeZone: request.timeZone,
+        newMessageIds: run.messageIds,
+        timeZone,
         model: this.model ?? undefined,
+        // Saved after every tool call, so GET shows the steps so far while the run works.
+        onTrace: async (trace) => {
+          await em.fork().nativeUpdate(AssistantRun, { id: runId }, { trace: trace as unknown as Array<Record<string, unknown>> });
+        },
         tools: {
-          agencyId: lead.agency.id,
-          areas: await loadAgencyAreas(this.em, lead.agency.id),
-          em: this.em,
-          properties: this.properties,
+          agencyId: run.agency.id,
+          areas: await loadAgencyAreas(em, run.agency.id),
+          em,
+          properties: new PropertiesService(em),
         },
       });
       run.trace = result.trace as unknown as Array<Record<string, unknown>>;
@@ -172,16 +210,16 @@ export class AssistantService {
       if (!result.ok) {
         run.status = 'failed';
         run.error = result.error;
-        await this.em.flush();
-        return run;
+        await em.flush();
+        return;
       }
 
       const { answer } = result;
-      const due = resolveDueDate(answer.followUp.timing, answer.followUp.unclearReason, message.sentAt, request.timeZone);
+      const due = resolveDueDate(answer.followUp.timing, answer.followUp.unclearReason, message.sentAt, timeZone);
       run.requirements = answer.requirements;
       run.summary = answer.summary;
       run.recommendations = result.recommendations.map((rec) => ({ ...rec }));
-      this.em.create(AssistantAction, {
+      em.create(AssistantAction, {
         run,
         position: 0,
         type: 'create_follow_up_task',
@@ -192,16 +230,16 @@ export class AssistantService {
         },
       });
       run.status = 'completed';
-      await this.em.flush();
-      return run;
+      await em.flush();
+      return;
     } catch (error) {
       run.status = 'failed';
       run.error = `The run failed: ${error instanceof Error ? error.message : String(error)}`;
       run.recommendations = [];
       run.requirements = EMPTY_REQUIREMENTS;
       run.finishedAt = new Date();
-      await this.em.flush();
-      return run;
+      await em.flush();
+      return;
     }
   }
 

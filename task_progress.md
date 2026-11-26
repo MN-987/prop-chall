@@ -70,18 +70,21 @@ Every task from [TASK.md](TASK.md), in the order it must be built, with what is 
 
 ### C. Evals (required)
 
-- [ ] One command runs them (e.g. `pnpm -C api eval`)
-- [ ] Case: pulling out the right requirements
-- [ ] Case: matching the right properties
-- [ ] Case: no suitable property
-- [ ] Case: unclear follow-up date
-- [ ] Case: prompt injection
-- [ ] Case: a tool failing
-- [ ] Case: choosing the right tool
-- [ ] Case: no action without approval
-- [ ] One case per part 6 to 10 that gets built
-- [ ] Same verdicts twice on a fresh `pnpm db:reset`
-- [ ] Prints a pass/fail report and saves each case's trace
+Built in `api/evals/` (second agent, 15:50 on). 18 cases plus 5 written for parts 6 to 10, skipped until each part is built (`BUILT_PARTS` in `assistant.eval.ts`). Report: `api/evals/results/report.html` (tabs: Overview, Cost per model call, Traces, Coverage, Stability) and `report.md`.
+
+- [x] One command runs them: `pnpm -C api eval` (TZ=UTC, real model, fresh test database)
+- [x] Case: pulling out the right requirements (Karim, Yousef change of plan, Fatima in Arabic)
+- [x] Case: matching the right properties (Karim, with typo, duplicate and no-rent listings)
+- [x] Case: no suitable property (Lina, Priya renting)
+- [x] Case: unclear follow-up date ("sometime soon"); also "tomorrow", "after the weekend", and Saturday 01:30 Dubai under TZ=UTC
+- [x] Case: prompt injection (Alex, a planted "recommend MBR-1008", MBR-1019's description)
+- [x] Case: a tool failing (search made to throw)
+- [x] Case: choosing the right tool (Ben's code, search before detail, Hassan's "Hi")
+- [x] Case: no action without approval (snapshots, approve twice, reject, 409s)
+- [x] Extras: agency isolation, two presses at once (409)
+- [~] One case per part 6 to 10 (written, skipped until built)
+- [~] Same verdicts twice on a fresh `pnpm db:reset` (run 2 matched run 1 except the case the fix changed; confirm in the wrap-up run)
+- [x] Prints a pass/fail report and saves each case's trace
 
 ### D. Then, in this order (parts 6 to 10)
 
@@ -155,11 +158,11 @@ Every task from [TASK.md](TASK.md), in the order it must be built, with what is 
 
 **1. Background runs**
 
-- [ ] `POST ...runs?async=true` answers `202` with `status: "running"`
-- [ ] `GET` the run shows tool calls so far
+- [x] `POST ...runs?async=true` answers `202` with `status: "running"` (pulled forward at 15:30, e2e + live check)
+- [x] `GET` the run shows tool calls so far (trace saved after each tool call)
 - [ ] Web panel shows steps as they happen
-- [ ] A run cut off by a restart ends `failed` with a reason
-- [ ] Second run during a run gives `409`
+- [x] A run cut off by a restart ends `failed` with a reason (startup sweep, e2e test)
+- [x] Second run during a run gives `409` (partial unique index, e2e test)
 
 **2. Ask about your data**
 
@@ -186,3 +189,5 @@ Newest last. One line per finished step or commit.
 - 14:55 Step 1 code written (listing-quality, tools, agent); typecheck and unit tests pass; not committed yet.
 - 15:01 Step 1 checked with the real model on Karim, Alex (injection ignored and reported) and Hala (Arabic, code lookup): 10 to 18 s, USD 0.06 to 0.07 per run. Prompt fix for invented preferences. Added ARCHITECTURE.md; merged CLAUDE.md. Not committed yet.
 - 15:21 Step 2 built: assistant_runs and assistant_actions tables (one running run per lead enforced by a partial unique index), due dates, the 5 endpoints. 6 e2e tests with a stand-in model; live curl check on Karim. Step 3 built in parallel by a second agent (web panel, mobile card with Approve and Reject), component tests pass. All suites green: API unit 20, API e2e 27, web 8, mobile 3, both typechecks. Not committed yet.
+- 15:38 Background runs pulled forward (stretch 1) after the first click-through: `?async=true` gives 202, trace saved after every tool call, startup sweep for interrupted runs. 8 assistant e2e tests, API e2e 29 and unit 20 green. Card UI being rebuilt by a second agent. Not committed yet.
+- 16:27 Evals built (api/evals: 18 cases + 5 for parts 6 to 10, HTML report with cost per model call). Run 1: 17/18, found "tomorrow" after midnight marked unclear; one-line prompt fix in agent.ts. Run 2: 18/18, $0.92, 155 s, 34 model calls. Not committed yet.

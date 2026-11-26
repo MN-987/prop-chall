@@ -1,4 +1,5 @@
-import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, ParseUUIDPipe, Post, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthAgent, CurrentAgent } from '../auth/decorators';
 import { StartRunDto } from './assistant.dto';
 import { AssistantService } from './assistant.service';
@@ -8,9 +9,19 @@ import { AssistantService } from './assistant.service';
 export class AssistantController {
   constructor(private readonly assistant: AssistantService) {}
 
+  /** Waits for the result (201). With `?async=true` it answers 202 straight away and the run continues in the background. */
   @Post()
-  start(@CurrentAgent() agent: AuthAgent, @Param('leadId', ParseUUIDPipe) leadId: string, @Body() dto: StartRunDto) {
-    return this.assistant.startManualRun(agent, leadId, dto);
+  async start(
+    @CurrentAgent() agent: AuthAgent,
+    @Param('leadId', ParseUUIDPipe) leadId: string,
+    @Body() dto: StartRunDto,
+    @Query('async') asyncFlag: string | undefined,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const background = asyncFlag === 'true';
+    const run = await this.assistant.startManualRun(agent, leadId, dto, background);
+    if (background) response.status(202);
+    return run;
   }
 
   @Get()

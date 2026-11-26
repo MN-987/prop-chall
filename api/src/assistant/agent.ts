@@ -92,6 +92,7 @@ Recommending:
 
 The follow-up task:
 - Always draft one. timing.kind says when the lead asked to be contacted: "tomorrow", "today", a weekday, "after_weekend", an explicit date, "in_days", "none" if they gave no time, or "unclear" (with unclearReason) if they asked for a time that cannot be pinned down. "next week" without a day is next_week, with unclearReason. You do not work out dates: code does that.
+- "tomorrow" is always kind "tomorrow": the calendar day after the message's date, even when the message was sent after midnight or the day is a weekend. Never mark "tomorrow" unclear.
 
 The summary: a few plain sentences for the agent, in English even if the lead wrote in another language. It must agree with the data and the recommendations.`;
 
@@ -109,7 +110,9 @@ export interface AgentInput {
   /** The messages this run analyses as new. */
   newMessageIds: string[];
   timeZone: string;
-  tools: Omit<ToolContext, 'trace' | 'seen' | 'onToolError'>;
+  tools: Omit<ToolContext, 'trace' | 'seen' | 'onToolError' | 'onTrace'>;
+  /** Called after every tool call with the trace so far (for live progress). */
+  onTrace?: ToolContext['onTrace'];
   /** For tests: a stand-in model. Defaults to Anthropic's `modelId`. */
   model?: LanguageModel;
   /** Model id, for the call and for pricing. Defaults to ASSISTANT_MODEL or claude-opus-5-5. */
@@ -258,6 +261,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResult | AgentFa
     ...input.tools,
     trace,
     seen: new Map(),
+    onTrace: input.onTrace,
     onToolError: (toolName, error) => {
       toolFailure ??= `The ${toolName} tool failed: ${error.message}`;
       abort.abort();
